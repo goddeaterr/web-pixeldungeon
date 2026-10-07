@@ -77,7 +77,9 @@ public class GameThread implements ApplicationListener {
 				return "frames=" + frames + " running=" + running + " parked=" + (parked != null)
 						+ " queued=" + tasks.size() + " posted=" + posted.size() + " crashed=" + crashed
 						+ " input=" + inputQueue.received + "/" + inputQueue.delivered
-						+ " processor=" + (Gdx.input == null ? null : Gdx.input.getInputProcessor() == inputQueue);
+						+ " processor=" + (Gdx.input == null ? null : Gdx.input.getInputProcessor() == inputQueue)
+						+ " game=" + com.watabou.noosa.Game.width + "x" + com.watabou.noosa.Game.height
+						+ " gdx=" + (Gdx.graphics == null ? "-" : Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
 			}
 		});
 	}

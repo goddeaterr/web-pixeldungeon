@@ -45,12 +45,20 @@ public class WebCrashHandler {
 		t.printStackTrace(pw);
 		pw.flush();
 		String msg = sw.toString();
-		if (msg.length() > 4000){
-			msg = msg.substring(0, 4000) + "...";
+		//errors raised by JavaScript itself (TypeError etc.) carry the useful stack in the JS error
+		String jsStack = jsStack(t);
+		if (jsStack != null) {
+			msg += "\nJavaScript stack:\n" + jsStack;
+		}
+		if (msg.length() > 8000){
+			msg = msg.substring(0, 8000) + "...";
 		}
 		WebJS.crash("Shattered Pixel Dungeon has run into an error it cannot recover from and has crashed, sorry about that!\n\n"
 				+ "version: " + Game.version + "\n" + msg);
 	}
+
+	@org.teavm.jso.JSBody(params = "t", script = "var e = t && t.$jsException; return e && e.stack ? String(e.stack) : null;")
+	private static native String jsStack(Throwable t);
 
 	public static void install(){
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
