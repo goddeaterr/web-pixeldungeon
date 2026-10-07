@@ -18,3 +18,8 @@ local.properties
 #intellij project files
 *.iml
 *.idea
+
+# WEB-PORT: heap dumps from the TeaVM compiler, local tool settings, Vercel CLI state
+*.hprof
+.claude/
+.vercel/
