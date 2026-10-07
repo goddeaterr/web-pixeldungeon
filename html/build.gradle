@@ -26,6 +26,8 @@ def webDist = layout.buildDirectory.dir('dist/web')
 dependencies {
     implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxWebVersion"
+    // same version SPD-classes uses for Bundle; SeedCheck probes its number handling
+    implementation "org.json:json:20170516"
     implementation "com.github.xpenatan.gdx-teavm:backend-web:$gdxTeaVMVersion"
     implementation "com.github.xpenatan.gdx-teavm:gdx-freetype-web:$gdxTeaVMVersion"
     implementation "com.github.xpenatan.gdx-teavm:gdx-controllers-web:$gdxTeaVMVersion"
@@ -39,7 +41,7 @@ dependencies {
 
 // gdx-teavm's emulation layer is compiled against this libGDX release. The desktop/android builds keep
 // using the version from the root build.gradle; only the web classpath is aligned to the backend.
-configurations.configureEach {
+configurations.matching { !it.name.startsWith('seedcheck') }.configureEach {
     resolutionStrategy.eachDependency { details ->
         if (details.requested.group == 'com.badlogicgames.gdx' && details.requested.name in ['gdx', 'gdx-freetype']) {
             details.useVersion gdxWebVersion
@@ -187,6 +189,15 @@ gdxTeaVM {
     }
 }
 
+// Number formatting data (CLDR) for every language of the game. TeaVM only bundles en by default,
+// which made DecimalFormat/String.format ignore the locale (e.g. "1.5" instead of "1,5" in Russian).
+// Keep in sync with messages/Languages.java ("in" is the legacy code Java uses for Indonesian).
+def webLocales = ['en', 'zh', 'zh_Hant', 'ko', 'ru', 'es', 'pt', 'fr', 'de', 'ja', 'pl', 'it', 'tr', 'vi',
+                  'uk', 'id', 'cs', 'nl', 'sv', 'hu', 'el', 'be', 'eo']
+tasks.withType(org.teavm.gradle.tasks.TeaVMTask).configureEach {
+    properties.put('java.util.Locale.available', webLocales.join(', '))
+}
+
 tasks.matching { it.name.startsWith('gdx_teavm_') || it.name.startsWith('generateJavaScript') }.configureEach {
     dependsOn 'generateReflectionList', 'stageWebAssets'
 }
@@ -272,3 +283,37 @@ registerDist('distDebug', 'gdx_teavm_web_js_debug_build', 'dist/js/debug/webapp'
 
 // so that './gradlew html:build' also produces the site
 build.dependsOn 'dist'
+
+// ---------------------------------------------------------------------------------------------
+// 1:1 check of level generation: the same SeedCheck code is run on the JVM with the desktop
+// build's libGDX version, and in the browser with ?seedcheck=SEED (see README).
+//   ./gradlew html:seedCheckDesktop -Pseed=ABC-DEF-GHI,JKL-MNO-PQR -Phero=warrior,mage -Pdepths=5
+// writes html/build/seedcheck/desktop.txt, compare with the page's output (see README)
+// ---------------------------------------------------------------------------------------------
+sourceSets {
+    seedcheck {
+        java.srcDir 'src/seedcheck/java'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+dependencies {
+    seedcheckImplementation project(':core')
+    seedcheckImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+    seedcheckImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    seedcheckImplementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+}
+tasks.register('seedCheckDesktop', JavaExec) {
+    group = 'verification'
+    description = 'Dumps generated floors for a seed using the desktop (JVM) game code'
+    dependsOn 'stageWebAssets'
+    classpath = sourceSets.seedcheck.runtimeClasspath
+    mainClass = 'com.shatteredpixel.shatteredpixeldungeon.html.seedcheck.SeedCheckDesktop'
+    def seed = project.findProperty('seed') ?: 'AAA-AAA-AAA'
+    def hero = project.findProperty('hero') ?: 'warrior'
+    def depths = project.findProperty('depths') ?: '5'
+    workingDir = webAssets.get().asFile
+    systemProperty 'spd.version', appVersionName
+    systemProperty 'spd.versionCode', appVersionCode
+    args seed, hero, depths, layout.buildDirectory.file('seedcheck/desktop.txt').get().asFile.absolutePath
+}

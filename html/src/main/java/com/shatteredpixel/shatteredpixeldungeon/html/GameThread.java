@@ -94,6 +94,23 @@ public class GameThread implements ApplicationListener {
 		}, "SHPD Render Thread");
 		thread.start();
 
+		final String seedCheck = WebJS.queryParam("seedcheck");
+		if (seedCheck != null) {
+			//1:1 verification mode (see SeedCheck), the game itself is not started
+			queue(new Runnable() {
+				@Override
+				public void run() {
+					String hero = WebJS.queryParam("hero");
+					String depths = WebJS.queryParam("depths");
+					String dump = SeedCheck.runAll(seedCheck, hero == null ? "warrior" : hero,
+							depths == null ? 5 : Integer.parseInt(depths));
+					WebJS.seedCheckResult(dump);
+				}
+			});
+			crashed = true; //stops any further game tasks
+			return;
+		}
+
 		queue(new Runnable() {
 			@Override
 			public void run() {

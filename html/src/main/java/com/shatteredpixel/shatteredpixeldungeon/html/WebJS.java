@@ -108,6 +108,13 @@ public class WebJS {
 	@JSBody(script = "if (window.spd && window.spd.exit) window.spd.exit();")
 	public static native void exit();
 
+	@JSBody(params = "dump", script = "window.spd = window.spd || {}; window.spd.seedCheckResult = dump;"
+			+ " console.log(dump); if (window.spd.loaded) window.spd.loaded();"
+			+ " var pre = document.createElement('pre'); pre.id = 'seedcheck'; pre.textContent = dump;"
+			+ " pre.style.cssText = 'position:fixed;inset:0;margin:0;overflow:auto;background:#000;color:#ddd;font-size:11px;z-index:20;user-select:text;-webkit-user-select:text';"
+			+ " document.body.appendChild(pre);")
+	public static native void seedCheckResult(String dump);
+
 	@JSBody(params = "key", script = "try { return new URLSearchParams(location.search).get(key); } catch (e) { return null; }")
 	public static native String queryParam(String key);
 
