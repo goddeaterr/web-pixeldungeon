@@ -66,11 +66,23 @@ public class GameThread implements ApplicationListener {
 			}
 			game.render();
 			frames++;
+			AutoTest.step();
 		}
 	};
 
 	public GameThread( ApplicationListener game ){
 		this.game = game;
+		WebJS.registerAutoTest(new WebJS.Toggle() {
+			@Override
+			public void set(boolean on) {
+				AutoTest.setEnabled(on);
+			}
+		}, new WebJS.StateProvider() {
+			@Override
+			public String state() {
+				return AutoTest.status();
+			}
+		});
 		WebJS.registerState(new WebJS.StateProvider() {
 			@Override
 			public String state() {

@@ -82,6 +82,11 @@ compileJava.dependsOn 'generateWebBuildConfig'
 // ---------------------------------------------------------------------------------------------
 def reflectionResDir = layout.buildDirectory.dir('generated/resources/webReflection')
 def reflectionList = reflectionResDir.map { it.file('spd-reflection-classes.txt') }
+// Nested classes of the game as the JVM sees them ("S name" = static member class, "M name" = inner class).
+// TeaVM loses the 'static' flag of nested classes, which Bundle relies on; the shadowed
+// emu ClassReflection in this module reads this table instead (shipped as an asset).
+def classInfoDir = layout.buildDirectory.dir('generated/web-class-info')
+def classInfoFile = classInfoDir.map { it.file('spd-class-info.txt') }
 
 tasks.register('generateReflectionList') {
     description = 'Scans core/SPD-classes for classes that are instantiated reflectively'
@@ -92,6 +97,7 @@ tasks.register('generateReflectionList') {
     inputs.files(scanPath)
     inputs.files(gameDirs)
     outputs.file(reflectionList)
+    outputs.file(classInfoFile)
     dependsOn ':core:classes', ':SPD-classes:classes'
 
     doLast {
@@ -100,7 +106,15 @@ tasks.register('generateReflectionList') {
         def roots = ['com.watabou.utils.Bundlable', 'com.watabou.noosa.Gizmo', 'com.watabou.glscripts.Script']
                 .collect { Class.forName(it, false, loader) }
 
+        // java.lang.Class methods called explicitly: Groovy would otherwise prefer a game class's own
+        // static methods with the same name (e.g. a static getName())
+        def classMethod = { String m -> Class.class.getMethod(m) }
+        def nameOf = { Class k -> (String) classMethod('getName').invoke(k) }
+        def isMember = { Class k -> (boolean) classMethod('isMemberClass').invoke(k) }
+        def modifiersOf = { Class k -> (int) classMethod('getModifiers').invoke(k) }
+
         def found = new TreeSet<String>()
+        def memberClasses = new TreeSet<String>()
         gameDirs.files.each { File dir ->
             if (!dir.exists()) return
             dir.eachFileRecurse(groovy.io.FileType.FILES) { File f ->
@@ -114,6 +128,9 @@ tasks.register('generateReflectionList') {
                 } catch (Throwable ignored) {
                     return
                 }
+                if (isMember(c)) {
+                    memberClasses << ((java.lang.reflect.Modifier.isStatic(modifiersOf(c)) ? 'S ' : 'M ') + nameOf(c))
+                }
                 if (c.isInterface() || java.lang.reflect.Modifier.isAbstract(c.getModifiers())) return
                 if (c.isAnonymousClass() || c.isLocalClass()) return
                 if (!roots.any { it.isAssignableFrom(c) }) return
@@ -124,13 +141,17 @@ tasks.register('generateReflectionList') {
                 } catch (NoSuchMethodException ignored) {
                     return
                 }
-                found << c.getName()
+                found << nameOf(c)
             }
         }
         def out = reflectionList.get().asFile
         out.parentFile.mkdirs()
         out.text = found.join('\n') + '\n'
         logger.lifecycle("[web] reflection list: ${found.size()} classes -> ${out}")
+        def info = classInfoFile.get().asFile
+        info.parentFile.mkdirs()
+        info.text = memberClasses.join('\n') + '\n'
+        logger.lifecycle("[web] nested class table: ${memberClasses.size()} classes -> ${info}")
     }
 }
 
@@ -144,6 +165,9 @@ tasks.register('stageWebAssets', Sync) {
     from(coreAssets) { exclude 'music/**' }
     // the fallback font (CJK and system font option) ships with the desktop build, as on desktop
     from(new File(project(':desktop').projectDir, 'src/main/assets')) { include 'fonts/**' }
+    // nested class table for ClassReflection, see generateReflectionList
+    from(classInfoDir)
+    dependsOn 'generateReflectionList'
     into webAssets
 }
 
@@ -316,4 +340,10 @@ tasks.register('seedCheckDesktop', JavaExec) {
     systemProperty 'spd.version', appVersionName
     systemProperty 'spd.versionCode', appVersionCode
     args seed, hero, depths, layout.buildDirectory.file('seedcheck/desktop.txt').get().asFile.absolutePath
+}
+
+// TeaVM doesn't clear its output folder, so files removed from the assets would linger in later builds
+tasks.matching { it.name in ['generateJavaScript', 'gdx_teavm_web_js_debug_compile'] }.configureEach { task ->
+    def dir = layout.buildDirectory.dir(task.name.contains('debug') ? 'dist/js/debug/webapp' : 'dist/js/webapp')
+    doFirst { project.delete(dir) }
 }

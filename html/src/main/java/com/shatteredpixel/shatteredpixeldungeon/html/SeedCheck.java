@@ -218,6 +218,13 @@ public class SeedCheck {
 			Level level = Dungeon.newLevel();
 			Dungeon.level = level;
 			dumpLevel(level, depth, out);
+			com.watabou.utils.Bundle heroSave = new com.watabou.utils.Bundle();
+			heroSave.put("hero", Dungeon.hero);
+			out.append("hero ").append(heroSave.toString()).append('\n');
+			//what a save file contains for this floor (Bundle JSON, the same text Dungeon.saveLevel compresses)
+			com.watabou.utils.Bundle save = new com.watabou.utils.Bundle();
+			save.put("level", level);
+			out.append("save ").append(save.toString()).append('\n');
 		}
 		return out.toString();
 	}

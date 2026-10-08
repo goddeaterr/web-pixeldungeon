@@ -29,7 +29,28 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.noosa.Game;
 import com.watabou.utils.FileUtils;
 
+import java.util.Locale;
+
 public class WebLauncher {
+
+	//BCP 47 tag (navigator.language) to the Locale a JVM would report for that system language
+	static Locale browserLocale( String tag ){
+		if (tag == null || tag.isEmpty()) return Locale.ENGLISH;
+		String[] parts = tag.replace('_', '-').split("-");
+		String language = parts[0].toLowerCase(Locale.ROOT);
+		String script = "";
+		String region = "";
+		for (int i = 1; i < parts.length; i++){
+			if (parts[i].length() == 4) script = parts[i];
+			else if (parts[i].length() == 2 || parts[i].length() == 3) region = parts[i].toUpperCase(Locale.ROOT);
+		}
+		if (language.equals("zh") && (script.equalsIgnoreCase("Hant")
+				|| (script.isEmpty() && (region.equals("TW") || region.equals("HK") || region.equals("MO"))))){
+			//the JVM reports zh_TW_#Hant for traditional Chinese systems, which Languages.matchLocale looks for
+			return new Locale(language, region, "#Hant");
+		}
+		return new Locale(language, region);
+	}
 
 	public static void main(String[] args) {
 
@@ -54,6 +75,10 @@ public class WebLauncher {
 		} else {
 			SharedLibraryLoader.os = Os.Linux;
 		}
+
+		//new players get the system language on desktop (SPDSettings.language() -> Locale.getDefault()),
+		// the browser's language is the equivalent here
+		Locale.setDefault(browserLocale(WebJS.browserLanguage()));
 
 		//all game files (saves, rankings, badges, journal) are kept in IndexedDB through FileType.Local
 		FileUtils.setDefaultFileProperties(Files.FileType.Local, "");

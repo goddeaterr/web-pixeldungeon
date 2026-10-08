@@ -44,12 +44,25 @@ public class WebJS {
 	@JSBody(params = "p", script = "window.spd = window.spd || {}; window.spd.state = p;")
 	public static native void registerState(StateProvider p);
 
+	@JSFunctor
+	public interface Toggle extends JSObject {
+		void set(boolean on);
+	}
+
+	//test tooling, see AutoTest
+	@JSBody(params = { "toggle", "status" }, script = "window.spd = window.spd || {};"
+			+ " window.spd.autotest = toggle; window.spd.autotestStatus = status;")
+	public static native void registerAutoTest(Toggle toggle, StateProvider status);
+
 	@JSBody(params = "cb", script = "window.spd = window.spd || {}; window.spd.onFullscreenExit = cb;")
 	public static native void onFullscreenExit(Callback cb);
 
 	@JSBody(script = "return /iPad|iPhone|iPod/.test(navigator.userAgent)"
 			+ " || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);")
 	public static native boolean isIOS();
+
+	@JSBody(script = "return navigator.language || (navigator.languages && navigator.languages[0]) || 'en';")
+	public static native String browserLanguage();
 
 	@JSBody(script = "return /Android/i.test(navigator.userAgent);")
 	public static native boolean isAndroid();
@@ -112,7 +125,11 @@ public class WebJS {
 			+ " console.log(dump); if (window.spd.loaded) window.spd.loaded();"
 			+ " var pre = document.createElement('pre'); pre.id = 'seedcheck'; pre.textContent = dump;"
 			+ " pre.style.cssText = 'position:fixed;inset:0;margin:0;overflow:auto;background:#000;color:#ddd;font-size:11px;z-index:20;user-select:text;-webkit-user-select:text';"
-			+ " document.body.appendChild(pre);")
+			+ " document.body.appendChild(pre);"
+			+ " var a = document.createElement('a'); a.textContent = 'Download'; a.download = 'seedcheck-web.txt';"
+			+ " a.href = URL.createObjectURL(new Blob([dump], {type: 'text/plain'}));"
+			+ " a.style.cssText = 'position:fixed;top:8px;right:8px;z-index:21;padding:6px 12px;background:#ffcc33;color:#000;font:14px monospace';"
+			+ " document.body.appendChild(a);")
 	public static native void seedCheckResult(String dump);
 
 	@JSBody(params = "key", script = "try { return new URLSearchParams(location.search).get(key); } catch (e) { return null; }")

@@ -1,0 +1,84 @@
+# WEB-PORT: builds the browser version with Gradle (TeaVM) and deploys the static site to Vercel.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   VERCEL_TOKEN       personal token from https://vercel.com/account/tokens
+#   VERCEL_ORG_ID      "orgId" from .vercel/project.json after running `vercel link` locally
+#   VERCEL_PROJECT_ID  "projectId" from the same file
+#
+# Pull requests only build; pushes to the default branch, and manual runs, also deploy to production.
+# (The 1:1 level generation check needs a browser and is run locally, see README.)
+name: Web build and deploy
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the web site
+        run: ./gradlew --no-daemon html:dist
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-site
+          path: html/build/dist/web
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-site
+          path: html/build/dist/web
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # vercel.json points the output at html/build/dist/web and turns the install/build steps into no-ops,
+      # so this only packages the prebuilt site (with the cache headers from vercel.json) into .vercel/output
+      - name: Package prebuilt output
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
