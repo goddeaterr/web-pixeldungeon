@@ -4,7 +4,8 @@ This repository is a fork of [Shattered Pixel Dungeon](https://github.com/00-Eva
 with an added **`html`** module: a browser build (libGDX + [TeaVM](https://teavm.org) via
 [gdx-teavm](https://github.com/xpenatan/gdx-teavm)) that is deployed as a static site to Vercel.
 
-- **Game logic is untouched:** the `core` and `SPD-classes` modules have **no changes at all** relative to upstream v4.0.2.
+- **Game logic is untouched:** relative to upstream v4.0.2, `SPD-classes` has no changes, and `core` only has the
+  fork's branding on the title screens ("PIXEL DUNGEON WEB EDITION / by gdls studio").
   Everything web-specific lives in `html` and in a few root files (see [the list of changes](#list-of-web-port-changes)).
 - Authors of the game: **Evan Debenham** (Shattered Pixel Dungeon) and **Oleg Dolya / Watabou** (Pixel Dungeon).
   License: **GNU GPL v3** ([LICENSE.txt](LICENSE.txt)), unchanged. The in-game credits and the "Support the game"
@@ -217,7 +218,8 @@ git merge v4.1.0                  # or the tag/branch you need
 ```
 
 Conflicts are possible only in the few root files from [the list below](#list-of-web-port-changes) (`settings.gradle`,
-`gradle.properties`, `.gitignore`, `README.md`) — `core`/`SPD-classes` don't change in this fork.
+`gradle.properties`, `.gitignore`, `README.md`) and in the branding of `TitleScene`/`WelcomeScene` (two small
+blocks marked `WEB-PORT`, the rest is in the separate `WebTitle` class).
 After the merge:
 
 1. `./gradlew html:distDebug` — if TeaVM reports `Field ... was not found` / `Method ... was not found`,
@@ -233,7 +235,15 @@ After the merge:
 
 ## List of WEB-PORT changes
 
-**`core`, `SPD-classes`, `desktop`, `android`, `ios`, `services` — no changes.**
+**`SPD-classes`, `desktop`, `android`, `ios`, `services` — no changes.** In `core` there is only the branding:
+
+| File | Change |
+| --- | --- |
+| `core/.../scenes/WebTitle.java` (new) | the name "PIXEL DUNGEON WEB EDITION" and "by gdls studio" in the game's pixel font |
+| `core/.../scenes/TitleScene.java` | the banner image, glow and torches are hidden, `WebTitle` is shown instead (fades in with the menu) |
+| `core/.../scenes/WelcomeScene.java` | the same on the welcome screen |
+
+The original authors' credits (the About screen) are unchanged, as the GPLv3 requires.
 
 Outside the `html` module (all marked with `WEB-PORT` comments where the format allows):
 

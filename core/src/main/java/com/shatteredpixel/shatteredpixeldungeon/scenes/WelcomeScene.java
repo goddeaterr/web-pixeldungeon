@@ -116,6 +116,8 @@ public class WelcomeScene extends PixelScene {
 
 		align(title);
 
+		// WEB-PORT: fork branding, no torches without the banner artwork (see WebTitle)
+		/*
 		if (landscape()){
 			placeTorch(title.x + 30, title.y + 35);
 			placeTorch(title.x + title.width - 30, title.y + 35);
@@ -123,6 +125,7 @@ public class WelcomeScene extends PixelScene {
 			placeTorch(title.x + 16, title.y + 70);
 			placeTorch(title.x + title.width - 16, title.y + 70);
 		}
+		*/
 
 		Image signs = new Image(BannerSprites.get( landscape() ? BannerSprites.Type.TITLE_GLOW_LAND : BannerSprites.Type.TITLE_GLOW_PORT)){
 			private float time = 0;
@@ -142,6 +145,10 @@ public class WelcomeScene extends PixelScene {
 		signs.x = title.x + (title.width() - signs.width())/2f;
 		signs.y = title.y;
 		add( signs );
+
+		// WEB-PORT: fork branding, the name as text instead of the banner artwork (see WebTitle)
+		title.visible = signs.visible = false;
+		WebTitle.add(this, title, landscape());
 		
 		StyledButton okay = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "continue")){
 			@Override

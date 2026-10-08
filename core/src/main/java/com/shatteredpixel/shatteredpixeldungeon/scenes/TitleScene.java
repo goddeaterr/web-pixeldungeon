@@ -39,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TitleBackground;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -67,6 +68,7 @@ public class TitleScene extends PixelScene {
 	private Fireball leftFB;
 	private Fireball rightFB;
 	private Image signs;
+	private RenderedTextBlock[] webTitle; // WEB-PORT: see WebTitle
 
 	private StyledButton btnPlay;
 	private StyledButton btnSupport;
@@ -141,6 +143,10 @@ public class TitleScene extends PixelScene {
 		signs.x = title.x + (title.width() - signs.width())/2f;
 		signs.y = title.y;
 		add( signs );
+
+		// WEB-PORT: fork branding, the name as text instead of the banner artwork (see WebTitle)
+		title.visible = signs.visible = leftFB.visible = rightFB.visible = false;
+		webTitle = WebTitle.add(this, title, landscape());
 
 		final Chrome.Type GREY_TR = Chrome.Type.GREY_BUTTON_TR;
 		
@@ -313,6 +319,7 @@ public class TitleScene extends PixelScene {
 		leftFB.am = alpha;
 		rightFB.am = alpha;
 		//signs.am = alpha; handles this itself
+		for (RenderedTextBlock t : webTitle) t.alpha(alpha); // WEB-PORT: see WebTitle
 
 		btnPlay.enable(alpha != 0);
 		btnSupport.enable(alpha != 0);
