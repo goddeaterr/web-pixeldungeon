@@ -157,6 +157,7 @@ plus the save JSON (floors and hero; compared as JSON: key order and missile wea
 `SecureRandom` on every platform, are ignored) and number formatting in all 23 languages.
 What is deliberately not part of the seed (and also differs between two desktop runs): the first guidebook pages are placed
 by an unseeded generator (`EntranceRoom.placeEarlyGuidePages`); SeedCheck therefore marks them as found.
+Items picked through a `HashMap<Class, Float>` can differ by type (see "Differences", item 12).
 
 ### Playing — partly automatic
 
@@ -208,6 +209,12 @@ What is known and left as it is (it doesn't affect game logic):
     and the news screen shows the game's standard "no connection" message.
 11. On phones (Android/iOS by User-Agent) the mobile interface is shown, as in the native apps; on tablets
     with a desktop User-Agent (iPadOS) the iOS one is detected via touch support.
+12. **A few seeded picks depend on `Class.hashCode()`**: some rooms choose items from a `HashMap<Class, Float>`
+    (`SecretLibraryRoom`, `SecretLaboratoryRoom` — `Random.chances(HashMap)`, also `UnstableBrew`/`UnstableSpell`), whose iteration order
+    follows identity hash codes. Those are VM-specific, so in upstream SPD too the same seed can give e.g. a different
+    scroll type in a secret library on desktop (HotSpot) and Android (ART). The browser has its own order. Floor layout,
+    item positions and everything else stay identical, because the number of random draws doesn't change.
+    Example: `BCD-EFG-HJK`, floor 2 — two scrolls in the secret library.
 
 ## Merging upstream SPD
 
@@ -266,8 +273,8 @@ The `html` module:
 | `.../html/WebPlatformSupport`, `WebKeyboard`, `WebJS`, `WebBaseUrl`, `WebPreloader`, `WebCrashHandler` | platform layer |
 | `.../html/WebAudioSupport` | lazy music loading, mp3 for Safari |
 | `.../html/ClientArraysGL20`, `SPDWebGLGraphics` | client-side vertex arrays on top of WebGL |
-| `.../html/StrictFloat`, `.../html/build/SPDStrictFloat` | 32-bit float semantics |
-| `.../html/build/SPDReflection` | reflection for `Bundle` (build-time TeaVM plugin) |
+| `.../html/StrictFloat`, `.../html/compiler/SPDStrictFloat` | 32-bit float semantics |
+| `.../html/compiler/SPDReflection` | reflection for `Bundle` (build-time TeaVM plugin) |
 | `.../html/SeedCheck`, `MemoryPreferences`, `src/seedcheck/...`, `tools/seedcheck-compare.mjs` | 1:1 check |
 | `.../html/AutoTest`, `com/watabou/noosa/WebGroupAccess` | smoke-test bot (enabled only from the console) |
 | `emu/com/badlogic/gdx/utils/SharedLibraryLoader` | emulation with the `os` field |

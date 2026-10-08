@@ -32,7 +32,7 @@ dependencies {
     implementation "com.github.xpenatan.gdx-teavm:gdx-freetype-web:$gdxTeaVMVersion"
     implementation "com.github.xpenatan.gdx-teavm:gdx-controllers-web:$gdxTeaVMVersion"
 
-    // TeaVM compiler API, only used by the build-time reflection plugin (html.build.SPDReflection)
+    // TeaVM compiler API, only used by the build-time reflection plugin (html.compiler.SPDReflection)
     compileOnly "org.teavm:teavm-core:$teaVMVersion"
     // shadowed TeaVM classlib classes (see html/src/main/java/org/teavm/classlib)
     compileOnly "org.teavm:teavm-classlib:$teaVMVersion"

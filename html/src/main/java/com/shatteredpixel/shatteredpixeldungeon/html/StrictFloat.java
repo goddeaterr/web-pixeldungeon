@@ -24,14 +24,21 @@ package com.shatteredpixel.shatteredpixeldungeon.html;
 import org.teavm.jso.JSBody;
 
 /**
- * Runtime half of html.build.SPDStrictFloat: rounds a JavaScript number to the nearest 32-bit float,
+ * Runtime half of html.compiler.SPDStrictFloat: rounds a JavaScript number to the nearest 32-bit float,
  * which is what the JVM does after every float operation.
  */
 public final class StrictFloat {
 
 	private StrictFloat(){}
 
+	//Called from the calls html.compiler.SPDStrictFloat inserts. This must stay a regular method:
+	// TeaVM's JSO rewrites call sites of @JSBody methods, and depending on the transformer order it can
+	// run before SPDStrictFloat added them, leaving a call to a native method with no implementation.
+	public static float round( float x ){
+		return fround( x );
+	}
+
 	@JSBody(params = "x", script = "return Math.fround(x);")
-	public static native float round( float x );
+	private static native float fround( float x );
 
 }
