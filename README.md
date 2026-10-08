@@ -161,10 +161,13 @@ by an unseeded generator (`EntranceRoom.placeEarlyGuidePages`); SeedCheck theref
 
 - Save in the middle of a run → reload the tab → continue: checked (the save written while the tab closes survives
   thanks to the write-ahead log), as are deaths → rankings → the record window.
-- Smoke test: in a debug build, open the console and run `spd.autotest(true)` — a bot plays like a player
-  (via `Hero.handle` / `rest` / `search`, exactly as the game's taps and buttons call them): it fights, rests,
-  walks to the stairs, eats; after a death it starts a new run. `spd.autotestStatus()` shows progress.
-  This is how a run to Goo (floor 5) was checked; see the result in the commit history and the report.
+- Smoke test: open `<site>/?autotest` (or run `spd.autotest(true)` in the console) — a bot plays like a player
+  (via `Hero.handle`/`next`, `rest`, `search(true)`, eating and drinking — exactly as the game's cell taps and buttons
+  call them): it fights, gains experience, rests, finds hidden doors, walks to the stairs; after a death
+  it starts a new run, from the title screen it starts one itself. `spd.autotestStatus()` shows progress
+  (`runs`, `deepest`, floor, HP, the last action). In `?autotest` mode the page drives frames itself, so the test
+  also runs in a background window (browsers pause hidden tabs, and for players that is correct).
+  Errors are watched in the browser console.
 - `spd.state()` in the console — the state of the game thread (useful when debugging).
 
 ### Browsers and devices
@@ -189,7 +192,9 @@ What is known and left as it is (it doesn't affect game logic):
    the screen isn't updated — the loading screen animation pauses for a moment; on desktop it keeps animating.
 4. **Saves when closing the tab**: the game saves on `visibilitychange`/`pagehide` (like desktop does on minimize/close).
    If the browser or system crashes, progress since the last save is lost — the same as killing the desktop process.
-5. **Music** starts with a small delay the first time a track is played (downloaded on demand).
+5. **Music** starts with a small delay the first time a track is played (downloaded on demand). If a new version is
+   deployed while a tab is open, tracks that tab hasn't loaded yet won't load (their old `b/<hash>` folder
+   is gone) — the game plays on without them until the page is reloaded.
 6. **Fullscreen**: browsers allow it only after a user gesture, so the "Fullscreen" setting (on by default, as on desktop)
    is applied on the first click/tap. Leaving with Esc turns the setting off. On iPhone there is no Fullscreen API —
    the option is shown as unavailable; use "Add to Home Screen" (fullscreen web app via the manifest).

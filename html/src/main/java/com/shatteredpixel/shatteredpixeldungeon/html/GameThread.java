@@ -133,6 +133,8 @@ public class GameThread implements ApplicationListener {
 				gameInput = Gdx.input.getInputProcessor();
 				Gdx.input.setInputProcessor(inputQueue);
 				WebKeyboard.install(inputQueue);
+				//smoke test mode, see AutoTest and the ?autotest section of index.html
+				if (WebJS.queryParam("autotest") != null) AutoTest.setEnabled(true);
 			}
 		});
 	}

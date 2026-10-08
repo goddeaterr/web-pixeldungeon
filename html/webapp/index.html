@@ -180,6 +180,43 @@
 	"use strict";
 
 	var spd = window.spd = window.spd || {};
+
+	// ---- smoke test mode (?autotest, see AutoTest.java) -----------------------------------
+	// Browsers pause requestAnimationFrame and throttle short timeouts in hidden tabs, which stops the game
+	// (correct for players). For unattended test runs only, frames always come from a MessageChannel pump
+	// (~60/s) and short timeouts use it too while the tab is hidden, so the bot keeps playing in a background window.
+	if (/[?&]autotest\b/.test(location.search)) {
+		(function () {
+			var hidden = function () { return document.visibilityState === "hidden"; };
+			var tasks = new MessageChannel(), queue = [];
+			tasks.port1.onmessage = function () { var f = queue.shift(); if (f) f(); };
+			var setTimeoutOriginal = window.setTimeout;
+			window.setTimeout = function (fn, ms) {
+				if (hidden() && typeof fn === "function" && !(ms > 4)) {
+					var args = Array.prototype.slice.call(arguments, 2);
+					queue.push(function () { fn.apply(null, args); });
+					tasks.port2.postMessage(0);
+					return 0;
+				}
+				return setTimeoutOriginal.apply(window, arguments);
+			};
+			var frames = new MessageChannel(), waiting = [], last = 0, pumping = false;
+			frames.port1.onmessage = function () {
+				var now = performance.now();
+				if (now - last >= 16 && waiting.length) {
+					last = now;
+					var run = waiting; waiting = [];
+					run.forEach(function (cb) { cb(now); });
+				}
+				if (waiting.length) frames.port2.postMessage(0); else pumping = false;
+			};
+			window.requestAnimationFrame = function (cb) {
+				waiting.push(cb);
+				if (!pumping) { pumping = true; frames.port2.postMessage(0); }
+				return 0;
+			};
+		})();
+	}
 	var $ = function (id) { return document.getElementById(id); };
 	var canvas = $("canvas");
 

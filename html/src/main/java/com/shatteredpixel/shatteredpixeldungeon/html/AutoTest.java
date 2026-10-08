@@ -25,6 +25,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.watabou.input.PointerEvent;
@@ -34,7 +36,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
@@ -95,6 +102,10 @@ public class AutoTest {
 	public static int deepest = 0;
 	private static int deadFrames;
 	private static int storyFrames;
+	private static int lastPos = -1, lastHP = -1, noProgress, ignoredFor;
+	private static Mob lastTarget, ignored;
+	private static int lastHeap = -1, lastDepth = -1;
+	private static final java.util.HashSet<Integer> ignoredHeaps = new java.util.HashSet<>();
 
 	//called on the game thread after every frame
 	public static void step(){
@@ -109,26 +120,28 @@ public class AutoTest {
 			return;
 		}
 
+		//from the title screens: start a run
+		if (Game.scene() instanceof TitleScene || Game.scene() instanceof WelcomeScene){
+			if (++deadFrames > 120){
+				deadFrames = 0;
+				startRun();
+			}
+			return;
+		}
+
 		if (!(Game.scene() instanceof GameScene)) return;
 		Hero hero = Dungeon.hero;
 		if (hero != null && !hero.isAlive()){
-			//start another run, the way HeroSelectScene's start button does
 			if (++deadFrames > 120){
 				deadFrames = 0;
 				runs++;
-				GamesInProgress.selectedClass = HeroClass.WARRIOR;
-				GamesInProgress.curSlot = GamesInProgress.firstEmpty();
-				Dungeon.hero = null;
-				Dungeon.daily = Dungeon.dailyReplay = false;
-				Dungeon.initSeed();
-				ActionIndicator.clearAction();
-				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
-				Game.switchScene(InterlevelScene.class);
+				startRun();
 			}
 			return;
 		}
 		if (hero == null || !hero.ready || Dungeon.level == null) return;
 		deepest = Math.max(deepest, Dungeon.depth);
+		if (Dungeon.depth != lastDepth){ lastDepth = Dungeon.depth; ignoredHeaps.clear(); }
 
 		//dismiss story popups and other windows, like tapping outside of them
 		Window window = com.watabou.noosa.WebGroupAccess.findFirst(Game.scene(), Window.class);
@@ -141,7 +154,23 @@ public class AutoTest {
 		Level level = Dungeon.level;
 		Mob target = null;
 		int bestDist = Integer.MAX_VALUE;
+		//a command that changes nothing (e.g. attacking an enemy that can't be reached) would repeat forever
+		if (hero.pos == lastPos && hero.HP == lastHP && (last.startsWith("attack") || last.startsWith("hunt") || last.startsWith("loot"))){
+			if (++noProgress > 20){
+				if (last.startsWith("loot")) ignoredHeaps.add(lastHeap);
+				ignored = lastTarget;
+				ignoredFor = 200;
+				noProgress = 0;
+			}
+		} else {
+			noProgress = 0;
+		}
+		lastPos = hero.pos;
+		lastHP = hero.HP;
+		if (ignoredFor > 0 && --ignoredFor == 0) ignored = null;
+
 		for (Mob m : level.mobs.toArray(new Mob[0])){
+			if (m == ignored) continue;
 			if (m.alignment == Char.Alignment.ENEMY && level.heroFOV[m.pos] && m.isAlive()){
 				int d = level.distance(hero.pos, m.pos);
 				if (d < bestDist){
@@ -164,6 +193,7 @@ public class AutoTest {
 
 		if (target != null){
 			if (bestDist <= 1 || hero.HP >= hero.HT * 3 / 5){
+				lastTarget = target;
 				command(target.pos, "attack " + target.getClass().getSimpleName());
 			} else {
 				//hurt: let it come to us rather than chasing it
@@ -191,6 +221,61 @@ public class AutoTest {
 			actions++;
 			hero.rest(false);
 			return;
+		}
+
+		//wear better equipment, like a player opening the item and choosing "equip"
+		for (Item item : hero.belongings.backpack.items.toArray(new Item[0])){
+			if (item instanceof Armor && hero.belongings.armor() != null
+					&& ((Armor) item).tier > hero.belongings.armor().tier && ((Armor) item).STRReq() <= hero.STR()){
+				last = "equip " + item.getClass().getSimpleName();
+				actions++;
+				item.execute(hero, EquipableItem.AC_EQUIP);
+				return;
+			}
+			if (item instanceof MeleeWeapon && hero.belongings.weapon() instanceof MeleeWeapon
+					&& ((MeleeWeapon) item).tier > ((MeleeWeapon) hero.belongings.weapon()).tier
+					&& ((MeleeWeapon) item).STRReq() <= hero.STR()){
+				last = "equip " + item.getClass().getSimpleName();
+				actions++;
+				item.execute(hero, EquipableItem.AC_EQUIP);
+				return;
+			}
+		}
+
+		//pick up items lying nearby
+		for (Heap heap : level.heaps.valueList()){
+			if (heap.type == Heap.Type.HEAP && heap.pos != hero.pos && level.visited[heap.pos] && !ignoredHeaps.contains(heap.pos)
+					&& level.distance(hero.pos, heap.pos) < 12 && heap.peek() != null){
+				int step = nextStepTo(level, hero.pos, heap.pos, false, false);
+				if (step != -1){
+					lastHeap = heap.pos;
+					command(step, "loot");
+					return;
+				}
+			}
+		}
+
+		//gain some experience before going deeper: go after the nearest enemy on the floor
+		if (hero.lvl < Dungeon.depth + 1 && Dungeon.depth < 5){
+			Mob prey = null;
+			int preyDist = Integer.MAX_VALUE;
+			for (Mob m : level.mobs.toArray(new Mob[0])){
+				if (m == ignored || m.alignment != Char.Alignment.ENEMY || !m.isAlive()) continue;
+				int d = level.distance(hero.pos, m.pos);
+				if (d < preyDist){
+					preyDist = d;
+					prey = m;
+				}
+			}
+			if (prey != null){
+				int step = nextStepTo(level, hero.pos, prey.pos, false, false);
+				if (step == -1) step = nextStepTo(level, hero.pos, prey.pos, false, true);
+				if (step != -1){
+					lastTarget = prey;
+					command(step, "hunt " + prey.getClass().getSimpleName());
+					return;
+				}
+			}
 		}
 
 		int exit = level.exit();
@@ -223,6 +308,22 @@ public class AutoTest {
 			return;
 		}
 		command(next, "move");
+	}
+
+	//start a new run, the way HeroSelectScene's start button does
+	private static void startRun(){
+		GamesInProgress.selectedClass = HeroClass.WARRIOR;
+		if (GamesInProgress.firstEmpty() == -1){
+			//all slots taken by abandoned test runs: erase one, like the Erase button of a slot
+			Dungeon.deleteGame(1, true);
+		}
+		GamesInProgress.curSlot = GamesInProgress.firstEmpty();
+		Dungeon.hero = null;
+		Dungeon.daily = Dungeon.dailyReplay = false;
+		Dungeon.initSeed();
+		ActionIndicator.clearAction();
+		InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
+		Game.switchScene(InterlevelScene.class);
 	}
 
 	//a tap on a UI button, through the same input queue the browser feeds
