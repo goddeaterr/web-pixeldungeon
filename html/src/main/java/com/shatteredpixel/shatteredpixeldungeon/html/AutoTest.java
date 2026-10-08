@@ -22,12 +22,20 @@
 package com.shatteredpixel.shatteredpixeldungeon.html;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.watabou.input.PointerEvent;
+import com.watabou.utils.Point;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -59,7 +67,7 @@ public class AutoTest {
 	public static String status(){
 		Hero hero = Dungeon.hero;
 		if (hero == null) return "no hero, scene=" + Game.scene().getClass().getSimpleName();
-		return "enabled=" + enabled + " depth=" + Dungeon.depth + " hp=" + hero.HP + "/" + hero.HT + " lvl=" + hero.lvl
+		return "runs=" + runs + " deepest=" + deepest + " enabled=" + enabled + " depth=" + Dungeon.depth + " hp=" + hero.HP + "/" + hero.HT + " lvl=" + hero.lvl
 				+ " pos=" + hero.pos + " exit=" + (Dungeon.level == null ? -1 : Dungeon.level.exit())
 				+ " ready=" + hero.ready + " alive=" + hero.isAlive() + " actions=" + actions + " last=" + last
 				+ " scene=" + Game.scene().getClass().getSimpleName() + (stuck > 0 ? "\n" + around(hero.pos, 9) : "");
@@ -83,16 +91,49 @@ public class AutoTest {
 		return sb.toString();
 	}
 
+	public static int runs = 0;
+	public static int deepest = 0;
+	private static int deadFrames;
+	private static int storyFrames;
+
 	//called on the game thread after every frame
 	public static void step(){
-		if (!enabled || !(Game.scene() instanceof GameScene)) return;
+		if (!enabled) return;
+
+		//region story on the loading screen: tap its Continue button
+		if (Game.scene() instanceof InterlevelScene){
+			StyledButton button = com.watabou.noosa.WebGroupAccess.findFirst(Game.scene(), StyledButton.class);
+			if (button != null && ++storyFrames % 60 == 0){
+				tap(button);
+			}
+			return;
+		}
+
+		if (!(Game.scene() instanceof GameScene)) return;
 		Hero hero = Dungeon.hero;
-		if (hero == null || !hero.isAlive() || !hero.ready || Dungeon.level == null) return;
+		if (hero != null && !hero.isAlive()){
+			//start another run, the way HeroSelectScene's start button does
+			if (++deadFrames > 120){
+				deadFrames = 0;
+				runs++;
+				GamesInProgress.selectedClass = HeroClass.WARRIOR;
+				GamesInProgress.curSlot = GamesInProgress.firstEmpty();
+				Dungeon.hero = null;
+				Dungeon.daily = Dungeon.dailyReplay = false;
+				Dungeon.initSeed();
+				ActionIndicator.clearAction();
+				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
+				Game.switchScene(InterlevelScene.class);
+			}
+			return;
+		}
+		if (hero == null || !hero.ready || Dungeon.level == null) return;
+		deepest = Math.max(deepest, Dungeon.depth);
 
 		//dismiss story popups and other windows, like tapping outside of them
-		Gizmo window = Game.scene().getFirstAvailable(Window.class);
+		Window window = com.watabou.noosa.WebGroupAccess.findFirst(Game.scene(), Window.class);
 		if (window != null){
-			((Window) window).hide();
+			window.hide();
 			last = "close " + window.getClass().getSimpleName();
 			return;
 		}
@@ -110,8 +151,26 @@ public class AutoTest {
 			}
 		}
 
-		if (target != null && (bestDist <= 1 || hero.HP > hero.HT / 3)){
-			command(target.pos, "attack " + target.getClass().getSimpleName());
+		if (target != null && hero.HP <= hero.HT / 4){
+			//desperate: drink an unknown potion, healing is the most common one
+			Potion potion = hero.belongings.getItem(Potion.class);
+			if (potion != null){
+				last = "drink " + potion.getClass().getSimpleName();
+				actions++;
+				potion.execute(hero, Potion.AC_DRINK);
+				return;
+			}
+		}
+
+		if (target != null){
+			if (bestDist <= 1 || hero.HP >= hero.HT * 3 / 5){
+				command(target.pos, "attack " + target.getClass().getSimpleName());
+			} else {
+				//hurt: let it come to us rather than chasing it
+				last = "wait for " + target.getClass().getSimpleName();
+				actions++;
+				hero.rest(false);
+			}
 			return;
 		}
 
@@ -126,7 +185,8 @@ public class AutoTest {
 			}
 		}
 
-		if (hero.HP < hero.HT * 2 / 3 && target == null){
+		//no regeneration while starving, resting would never end
+		if (hero.HP < hero.HT * 9 / 10 && target == null && (hunger == null || !hunger.isStarving())){
 			last = "rest";
 			actions++;
 			hero.rest(false);
@@ -134,21 +194,43 @@ public class AutoTest {
 		}
 
 		int exit = level.exit();
+		if (hero.pos == exit && hero.HP < hero.HT && (hunger == null || !hunger.isStarving())){
+			last = "rest before stairs";
+			actions++;
+			hero.rest(false);
+			return;
+		}
 		if (hero.pos == exit){
 			command(exit, "descend");
 			return;
 		}
 
-		int next = nextStepTo(level, hero.pos, exit);
+		//prefer dry routes, piranhas live in the water
+		int next = nextStepTo(level, hero.pos, exit, false, false);
+		if (next == -1) next = nextStepTo(level, hero.pos, exit, false, true);
 		if (next == -1){
+			//the way is blocked by a hidden door: walk up to it, then search next to it like a player would
+			int viaSecret = nextStepTo(level, hero.pos, exit, true, true);
+			if (viaSecret != -1 && !level.secret[viaSecret]){
+				command(viaSecret, "move to secret");
+				return;
+			}
 			//nothing reachable: search for hidden doors
 			stuck++;
 			last = "search";
 			actions++;
-			hero.rest(false);
+			hero.search(true); //the search button (Toolbar, long press)
 			return;
 		}
 		command(next, "move");
+	}
+
+	//a tap on a UI button, through the same input queue the browser feeds
+	private static void tap( StyledButton button ){
+		Point p = button.camera().cameraToScreen(button.centerX(), button.centerY());
+		PointerEvent.addPointerEvent(new PointerEvent(p.x, p.y, 0, PointerEvent.Type.DOWN));
+		PointerEvent.addPointerEvent(new PointerEvent(p.x, p.y, 0, PointerEvent.Type.UP));
+		last = "tap continue";
 	}
 
 	private static void command( int cell, String what ){
@@ -163,7 +245,7 @@ public class AutoTest {
 	}
 
 	//breadth first search on the real map, avoiding visible traps and hazards
-	private static int nextStepTo( Level level, int from, int to ){
+	private static int nextStepTo( Level level, int from, int to, boolean throughSecrets, boolean throughWater ){
 		int length = level.length();
 		int[] prev = new int[length];
 		java.util.Arrays.fill(prev, -2);
@@ -176,7 +258,9 @@ public class AutoTest {
 			for (int offset : PathFinder.NEIGHBOURS8){
 				int n = cell + offset;
 				if (n < 0 || n >= length || prev[n] != -2) continue;
-				if (!level.passable[n] || level.avoid[n]) continue;
+				boolean secret = throughSecrets && level.secret[n];
+				if (!secret && (!level.passable[n] || level.avoid[n])) continue;
+				if (!throughWater && level.water[n] && n != to) continue;
 				Trap trap = level.traps.get(n);
 				if (trap != null && trap.visible && trap.active) continue;
 				if (n != to && Actor.findChar(n) != null) continue;

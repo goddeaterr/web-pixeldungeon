@@ -15,5 +15,5 @@ include ':services'
     //news
     include ':services:news:debugNews'
     include ':services:news:shatteredNews'
-// WEB-PORT: browser platform module (libGDX + TeaVM via gdx-teavm), see html/README section in README.md
+// WEB-PORT: browser platform module (libGDX + TeaVM via gdx-teavm), see "Web version" in README.md
 include ':html'
