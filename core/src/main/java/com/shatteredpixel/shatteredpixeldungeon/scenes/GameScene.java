@@ -126,6 +126,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.ControllerHandler;
@@ -657,6 +658,9 @@ public class GameScene extends PixelScene {
 				GLog.h(Messages.get(this, "warp"));
 			} else if (InterlevelScene.mode == InterlevelScene.Mode.RESURRECT) {
 				GLog.h(Messages.get(this, "resurrect"), Dungeon.depth);
+			} else if (Dungeon.level instanceof TaigaTownLevel) {
+				// MOD: arriving in the taiga village (floor 0)
+				GLog.h(Messages.get(TaigaTownLevel.class, "arrive"));
 			} else {
 				GLog.h(Messages.get(this, "return"), Dungeon.depth);
 			}

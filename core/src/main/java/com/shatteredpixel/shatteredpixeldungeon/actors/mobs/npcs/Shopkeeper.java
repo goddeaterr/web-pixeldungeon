@@ -43,6 +43,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ShopkeeperSprite;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
@@ -199,6 +200,8 @@ public class Shopkeeper extends NPC {
 
 	//shopkeepers are greedy!
 	public static int sellPrice(Item item){
+		// MOD: prices in the taiga village follow the deepest floor reached
+		if (Dungeon.level instanceof TaigaTownLevel) return TaigaTownLevel.price(item);
 		return item.value() * 5 * (Dungeon.depth / 5 + 1);
 	}
 	

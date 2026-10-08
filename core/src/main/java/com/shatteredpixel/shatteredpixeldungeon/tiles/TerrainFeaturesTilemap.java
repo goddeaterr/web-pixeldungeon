@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.LastShopLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.tweeners.ScaleTweener;
 import com.watabou.utils.PointF;
@@ -41,7 +42,8 @@ public class TerrainFeaturesTilemap extends DungeonTilemap {
 	private SparseArray<Trap> traps;
 
 	public TerrainFeaturesTilemap(SparseArray<Plant> plants, SparseArray<Trap> traps) {
-		super(Assets.Environment.TERRAIN_FEATURES);
+		// MOD: the taiga village has its own version of this sheet
+		super(TaigaAssets.forLevel(Assets.Environment.TERRAIN_FEATURES));
 
 		this.plants = plants;
 		this.traps = traps;

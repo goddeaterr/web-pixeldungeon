@@ -23,3 +23,9 @@ local.properties
 *.hprof
 .claude/
 .vercel/
+
+.vercel
+.env*
+
+# MOD art tools
+__pycache__/

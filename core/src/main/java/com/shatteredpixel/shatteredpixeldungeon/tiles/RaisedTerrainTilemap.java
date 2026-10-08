@@ -24,13 +24,15 @@ package com.shatteredpixel.shatteredpixeldungeon.tiles;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 
 import java.util.HashSet;
 
 public class RaisedTerrainTilemap extends DungeonTilemap {
 	
 	public RaisedTerrainTilemap() {
-		super(Assets.Environment.RAISED_TERRAIN);
+		// MOD: the taiga village has its own version of this sheet
+		super(TaigaAssets.forLevel(Assets.Environment.RAISED_TERRAIN));
 		skipCells.clear();
 		map( Dungeon.level.map, Dungeon.level.width() );
 	}

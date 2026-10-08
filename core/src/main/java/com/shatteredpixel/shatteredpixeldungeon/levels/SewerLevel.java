@@ -48,8 +48,10 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SurfaceScene;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Music;
@@ -144,36 +146,55 @@ public class SewerLevel extends RegularLevel {
 	
 	@Override
 	public boolean activateTransition(Hero hero, LevelTransition transition) {
+		// MOD: the stairs up lead to the taiga village (floor 0, taiga.TaigaTownLevel) instead of refusing
+		// to let the hero leave. With the Amulet the hero chooses between the village and the original ending.
 		if (transition.type == LevelTransition.Type.SURFACE){
 			if (hero.belongings.getItem( Amulet.class ) == null) {
+				return super.activateTransition( hero, transition );
+			} else {
 				Game.runOnRenderThread(new Callback() {
 					@Override
 					public void call() {
-						GameScene.show( new WndMessage( Messages.get(hero, "leave") ) );
+						GameScene.show( new WndOptions(
+								Messages.get(TaigaTownLevel.class, "amulet_title"),
+								Messages.get(TaigaTownLevel.class, "amulet_body"),
+								Messages.get(TaigaTownLevel.class, "amulet_leave"),
+								Messages.get(TaigaTownLevel.class, "amulet_village")){
+							@Override
+							protected void onSelect( int index ) {
+								if (index == 0){
+									leaveWithAmulet();
+								} else if (index == 1){
+									SewerLevel.super.activateTransition( hero, transition );
+								}
+							}
+						});
 					}
 				});
 				return false;
-			} else {
-				Statistics.ascended = true;
-				Game.switchScene(SurfaceScene.class, new Game.SceneChangeCallback() {
-					@Override
-					public void beforeCreate() {
-
-					}
-
-					@Override
-					public void afterCreate() {
-						Badges.validateHappyEnd();
-						Dungeon.win( Amulet.class );
-						Dungeon.deleteGame( GamesInProgress.curSlot, true );
-						Badges.saveGlobal();
-					}
-				});
-				return true;
 			}
 		} else {
 			return super.activateTransition(hero, transition);
 		}
+	}
+
+	// MOD: the original ending (leaving the dungeon with the Amulet), moved out of activateTransition
+	private static void leaveWithAmulet(){
+		Statistics.ascended = true;
+		Game.switchScene(SurfaceScene.class, new Game.SceneChangeCallback() {
+			@Override
+			public void beforeCreate() {
+
+			}
+
+			@Override
+			public void afterCreate() {
+				Badges.validateHappyEnd();
+				Dungeon.win( Amulet.class );
+				Dungeon.deleteGame( GamesInProgress.curSlot, true );
+				Badges.saveGlobal();
+			}
+		});
 	}
 
 	@Override

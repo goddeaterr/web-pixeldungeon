@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.sprites.TaigaItemSprites;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Matrix;
@@ -247,6 +248,9 @@ public class ItemSprite extends MovieClip {
 	}
 
 	public void frame( int image ){
+		// MOD: items of the taiga village are drawn from their own sheet (taiga.sprites.TaigaItemSprites)
+		SmartTexture sheet = TextureCache.get( TaigaItemSprites.texture( image ) );
+		if (texture != sheet) texture( sheet );
 		frame( ItemSpriteSheet.film.get( image ));
 
 		float height = ItemSpriteSheet.film.height( image );

@@ -49,6 +49,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.TitleBackground;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.input.KeyEvent;
 import com.watabou.noosa.Camera;
@@ -176,6 +177,10 @@ public class InterlevelScene extends PixelScene {
 		//for portrait users, each run the splashes change what details they focus on
 		Random.pushGenerator(seed+lastRegion);
 			switch (lastRegion){
+				// MOD: the taiga village (floor 0) has its own loading picture
+				case 0:
+					loadingAsset = TaigaAssets.SPLASH;
+					break;
 				case 1:
 					loadingAsset = Assets.Splashes.SEWERS;
 					switch (Random.Int(2)){

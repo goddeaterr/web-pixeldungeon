@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -72,7 +73,9 @@ public class Messages {
 			Assets.Messages.PLANTS,
 			Assets.Messages.SCENES,
 			Assets.Messages.UI,
-			Assets.Messages.WINDOWS
+			Assets.Messages.WINDOWS,
+			// MOD: texts of the taiga village
+			TaigaAssets.MESSAGES
 	};
 
 	static{

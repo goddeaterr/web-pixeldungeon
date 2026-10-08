@@ -134,7 +134,7 @@ public class WebAudioSupport implements Audio {
 			music.setVolume(volume);
 			if (pan != 0f) music.setPan(pan, volume);
 			if (position > 0f) music.setPosition(position);
-			if (listener != null) setOnCompletionListener(listener);
+			attachCompletion();
 			if (playing) music.play();
 		}
 
@@ -213,24 +213,31 @@ public class WebAudioSupport implements Audio {
 			}
 		}
 
+		//noosa's Music sets a new listener for every track it plays and clears it with null for single
+		// (looping) tracks. gdx-teavm's HowlMusic adds one more Howler "end" handler on every call, null
+		// listeners included, and that handler then calls the null listener. So the Howl gets exactly one
+		// handler (in create) that looks up the current listener when the track ends.
 		@Override
-		public void setOnCompletionListener(final OnCompletionListener listener) {
+		public void setOnCompletionListener(OnCompletionListener listener) {
 			this.listener = listener;
-			if (music != null) {
-				final Music self = this;
-				music.setOnCompletionListener(new OnCompletionListener() {
-					@Override
-					public void onCompletion(Music m) {
-						//Howler reports completion from a browser callback; hand it to the game thread
-						SPDWebApplication.gameThread().post(new Runnable() {
-							@Override
-							public void run() {
-								if (!disposed) listener.onCompletion(self);
-							}
-						});
-					}
-				});
-			}
+		}
+
+		private void attachCompletion(){
+			music.setOnCompletionListener(new OnCompletionListener() {
+				@Override
+				public void onCompletion(Music m) {
+					//Howler reports completion from a browser callback; hand it to the game thread
+					SPDWebApplication.gameThread().post(new Runnable() {
+						@Override
+						public void run() {
+							//Howler also reports the end of every loop of a looping track, the desktop
+							// backends don't: a looping track never completes
+							OnCompletionListener current = listener;
+							if (!disposed && !looping && current != null) current.onCompletion(LazyMusic.this);
+						}
+					});
+				}
+			});
 		}
 	}
 }

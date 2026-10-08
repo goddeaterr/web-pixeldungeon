@@ -75,6 +75,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -298,7 +299,18 @@ public class Dungeon {
 		
 		Dungeon.level = null;
 		Actor.clear();
-		
+
+		// MOD: floor 0 is the taiga village above the dungeon (taiga.TaigaTownLevel). It isn't a dungeon
+		// floor, so it leaves the floor statistics alone (deepest floor, no-killing and boss badge tracking).
+		if (branch == 0 && depth == 0){
+			if (!generatedLevels.contains(0)) {
+				generatedLevels.add(0);
+			}
+			Level town = new TaigaTownLevel();
+			town.create();
+			return town;
+		}
+
 		Level level;
 		if (branch == 0) {
 			switch (depth) {
