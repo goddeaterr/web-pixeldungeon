@@ -64,7 +64,15 @@ public class WebLauncher {
 		//DeviceCompat decides between the desktop and the mobile UI from SharedLibraryLoader.os.
 		// Desktop browsers get the desktop experience (keyboard, window-style UI scale),
 		// phones and tablets the matching mobile one (touch-first UI, iOS mp3 music, etc.)
-		if (WebJS.isIOS()) {
+		//?os=ios|android|desktop forces the platform, for testing the other interfaces in a desktop browser
+		String forcedOs = WebJS.queryParam("os");
+		if ("ios".equals(forcedOs)) {
+			SharedLibraryLoader.os = Os.IOS;
+		} else if ("android".equals(forcedOs)) {
+			SharedLibraryLoader.os = Os.Android;
+		} else if ("desktop".equals(forcedOs)) {
+			SharedLibraryLoader.os = Os.Windows;
+		} else if (WebJS.isIOS()) {
 			SharedLibraryLoader.os = Os.IOS;
 		} else if (WebJS.isAndroid()) {
 			SharedLibraryLoader.os = Os.Android;

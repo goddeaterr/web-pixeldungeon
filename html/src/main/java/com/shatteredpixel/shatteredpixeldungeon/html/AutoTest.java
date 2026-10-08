@@ -256,7 +256,7 @@ public class AutoTest {
 		}
 
 		//gain some experience before going deeper: go after the nearest enemy on the floor
-		if (hero.lvl < Dungeon.depth + 1 && Dungeon.depth < 5){
+		if (hero.lvl < Dungeon.depth + 2 && Dungeon.depth < 5){
 			Mob prey = null;
 			int preyDist = Integer.MAX_VALUE;
 			for (Mob m : level.mobs.toArray(new Mob[0])){

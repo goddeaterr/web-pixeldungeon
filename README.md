@@ -169,6 +169,8 @@ by an unseeded generator (`EntranceRoom.placeEarlyGuidePages`); SeedCheck theref
   also runs in a background window (browsers pause hidden tabs, and for players that is correct).
   Errors are watched in the browser console.
 - `spd.state()` in the console — the state of the game thread (useful when debugging).
+- `?os=ios` / `?os=android` / `?os=desktop` — force the platform the game sees (iOS/Android/desktop interface),
+  to check the mobile variants in a desktop browser with mobile emulation in DevTools.
 
 ### Browsers and devices
 
@@ -201,7 +203,8 @@ What is known and left as it is (it doesn't affect game logic):
 7. **Exit button** → a "game closed" screen with a "Start again" button (a page can't close its own tab).
 8. **Keys** the browser reserves for itself (Ctrl+W, Ctrl+T, F11, …) can't be bound.
 9. **Language** on first launch is taken from the browser (on desktop — from the system).
-10. **News and update checks** are disabled (as in the debug builds); the news screen shows "unavailable".
+10. **News and update checks** are disabled (as in builds without these services, e.g. debug ones): no update prompts,
+    and the news screen shows the game's standard "no connection" message.
 11. On phones (Android/iOS by User-Agent) the mobile interface is shown, as in the native apps; on tablets
     with a desktop User-Agent (iPadOS) the iOS one is detected via touch support.
 
