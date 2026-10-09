@@ -28,10 +28,10 @@ public class SwampBossLevel extends Level {
 	}
 
 	@Override
-	public String tilesTex(){ return TaigaAssets.TILES_WILD; }
+	public String tilesTex(){ return TaigaAssets.SWAMP_TILES; }
 
 	@Override
-	public String waterTex(){ return TaigaAssets.WATER; }
+	public String waterTex(){ return TaigaAssets.SWAMP_WATER; }
 
 	@Override
 	public void playLevelMusic(){
@@ -43,12 +43,20 @@ public class SwampBossLevel extends Level {
 		setSize(W, H);
 		for (int y = 1; y < H - 1; y++) for (int x = 1; x < W - 1; x++){
 			float distance = (float)Math.hypot(x - 15, y - 14);
-			if (distance < 13) map[cell(x, y)] = Random.Int(12) == 0 ? Terrain.EMPTY_DECO : Terrain.EMPTY;
+			if (distance < 13) {
+				map[cell(x, y)] = Random.Int(12) == 0 ? Terrain.EMPTY_DECO : Terrain.EMPTY;
+				// A flooded burial ring, with four raised walks leading to the central bell dais.
+				if (distance > 7 && distance < 11 && Math.abs(x - 15) > 1 && Math.abs(y - 14) > 1)
+					map[cell(x, y)] = Terrain.WATER;
+				if (distance < 3 || (Math.abs(x - 15) <= 1 && y > 3 && y < 25)
+						|| (Math.abs(y - 14) <= 1 && x > 3 && x < 27))
+					map[cell(x, y)] = Terrain.EMPTY_SP;
+			}
 		}
 		for (int y = 22; y < H - 1; y++) map[cell(15, y)] = Terrain.EMPTY;
 		for (int i = 0; i < 55; i++){
 			int x = 3 + Random.Int(25), y = 3 + Random.Int(22);
-			if (Math.abs(x - 15) < 3 || map[cell(x, y)] != Terrain.EMPTY) continue;
+			if (Math.abs(x - 15) < 3 || Math.abs(y - 14) < 2 || map[cell(x, y)] != Terrain.EMPTY) continue;
 			map[cell(x, y)] = Random.Int(3) == 0 ? Terrain.WATER : Terrain.CUSTOM_DECO;
 		}
 		int down = cell(15, H - 2);
@@ -89,11 +97,15 @@ public class SwampBossLevel extends Level {
 
 	@Override
 	public String tileName(int tile){
-		return tile == Terrain.CUSTOM_DECO ? Gravestones.tileName() : super.tileName(tile);
+		if (tile == Terrain.CUSTOM_DECO) return Gravestones.tileName();
+		String name = SwampTerrain.name(tile);
+		return name != null ? name : super.tileName(tile);
 	}
 
 	@Override
 	public String tileDesc(int tile){
-		return tile == Terrain.CUSTOM_DECO ? Gravestones.tileDesc() : super.tileDesc(tile);
+		if (tile == Terrain.CUSTOM_DECO) return Gravestones.tileDesc();
+		String desc = SwampTerrain.desc(tile);
+		return desc != null ? desc : super.tileDesc(tile);
 	}
 }

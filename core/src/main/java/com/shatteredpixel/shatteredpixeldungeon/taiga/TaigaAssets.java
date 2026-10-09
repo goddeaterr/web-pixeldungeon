@@ -23,6 +23,9 @@ package com.shatteredpixel.shatteredpixeldungeon.taiga;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampBossLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampVillageLevel;
 
 //MOD (taiga town): textures and texts of the village, all drawn by mod/taiga_art.py
 public class TaigaAssets {
@@ -33,6 +36,12 @@ public class TaigaAssets {
 	public static final String TERRAIN_FEATURES = "taiga/terrain_features.png";
 	public static final String RAISED_TERRAIN   = "taiga/raised_terrain.png";
 	public static final String WATER            = "taiga/water.png";
+	public static final String SWAMP_TILES      = "taiga/swamp_tiles.png";
+	public static final String SWAMP_WATER      = "taiga/swamp_water.png";
+	public static final String SWAMP_FEATURES   = "taiga/swamp_terrain_features.png";
+	public static final String SWAMP_RAISED     = "taiga/swamp_raised_terrain.png";
+	public static final String SWAMP_MOBS       = "taiga/swamp_mobs.png";
+	public static final String SWAMP_BOSS       = "taiga/swamp_boss.png";
 	public static final String SPLASH           = "taiga/splash.png";
 	public static final String VILLAGE_ARRIVAL  = "taiga/village_arrival.png";
 	public static final String SWAMP_SPLASH     = "taiga/swamp_splash.png";
@@ -49,6 +58,11 @@ public class TaigaAssets {
 
 	//the terrain overlays pick their sheet by region, the village has its own versions of them
 	public static String forLevel( String asset ){
+		if (Dungeon.level instanceof SwampLevel || Dungeon.level instanceof SwampVillageLevel
+				|| Dungeon.level instanceof SwampBossLevel){
+			if (asset.equals(Assets.Environment.TERRAIN_FEATURES)) return SWAMP_FEATURES;
+			if (asset.equals(Assets.Environment.RAISED_TERRAIN))   return SWAMP_RAISED;
+		}
 		if (Dungeon.level instanceof TaigaTownLevel || TaigaBranch.active()){
 			if (asset.equals(Assets.Environment.TERRAIN_FEATURES)) return TERRAIN_FEATURES;
 			if (asset.equals(Assets.Environment.RAISED_TERRAIN))   return RAISED_TERRAIN;

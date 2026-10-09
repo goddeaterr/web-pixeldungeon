@@ -119,9 +119,10 @@ hero wake up as treants, the roots come faster, and he fells spruces along a mar
 **the Leshy's crook** (tier 4, reach 2, roots on hit) and **the Heart of the Taiga** (+10 maximum health for good).
 The pass north of the grove opens onto +6 after the fight. Entering the first village from the dungeon shows
 illustrated lore about the corruption climbing uphill; entering the Last Hearth tells how the graves began moving.
-The new region has greyer, darker terrain, progressively heavier and faster snow, more water and fewer living trees.
-Its three middle floors generate separate swamp layouts. The Grave Warden seals +10 when alerted and drops strength
-and upgrade supplies when defeated.
+The Last Hearth has an uneven flooded street, a full dungeon-style shopkeeper with upgrade and strength supplies,
+and an herbalist. Floors +7 to +9 use their own peat, shale, timber and blackwater tile sheets, three swamp room
+shapes, three original enemies, and swamp-specific drops. The Grave Warden has a flooded bell arena, two waves of
+mire husks, and a warned bell strike that can be dodged by moving. It drops its own spade when defeated.
 
 The intended ascent is 25 floors across five biomes. Floors +11 through +25 are still to be built; the planned
 sequence is an ash moor with dying roots, a bare grey highland where even the snow falls silent, and a lifeless summit.

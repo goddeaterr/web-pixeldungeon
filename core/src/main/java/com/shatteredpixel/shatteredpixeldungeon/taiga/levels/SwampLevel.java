@@ -3,18 +3,23 @@ package com.shatteredpixel.shatteredpixeldungeon.taiga.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
-import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.CaveRoom;
-import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.EmptyRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.StandardRoom;
-import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.WaterBridgeRoom;
-import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Frostbitten;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.BellWraith;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveMoth;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.MireHusk;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.Snowfall;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.items.GraveSalt;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.items.MireRoot;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.items.FuneralLantern;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Music;
@@ -30,6 +35,9 @@ public class SwampLevel extends TaigaLevel {
 		color1 = 0xa2abb8;
 		color2 = 0x343e49;
 	}
+
+	@Override public String tilesTex(){ return TaigaAssets.SWAMP_TILES; }
+	@Override public String waterTex(){ return TaigaAssets.SWAMP_WATER; }
 
 	@Override
 	protected boolean build(){
@@ -81,10 +89,10 @@ public class SwampLevel extends TaigaLevel {
 		int count = standardRooms(false);
 		for (int i = 0; i < count; i++){
 			StandardRoom room;
-			switch (Random.Int(5)){
-				case 0: room = new WaterBridgeRoom(); break;
-				case 1: room = new CaveRoom(); break;
-				default: room = new EmptyRoom(); break;
+			switch (Random.Int(3)){
+				case 0: room = new SwampRooms.SunkenGravesRoom(); break;
+				case 1: room = new SwampRooms.BoardwalkRoom(); break;
+				default: room = new SwampRooms.MirePoolRoom(); break;
 			}
 			if (!room.setSizeCat(count - i)) { i--; continue; }
 			i += room.sizeFactor() - 1;
@@ -95,8 +103,9 @@ public class SwampLevel extends TaigaLevel {
 
 	@Override
 	protected Painter painter(){
-		return new SwampPainter().setWater(0.55f + 0.06f * (Dungeon.depth - 7), 5)
-				.setGrass(0.04f, 2).setTraps(nTraps(), trapClasses(), trapChances());
+		return new SwampPainter().setWater(0.38f + 0.08f * (Dungeon.depth - 7), 5)
+				.setGrass(0.10f - 0.03f * (Dungeon.depth - 7), 2)
+				.setTraps(nTraps(), trapClasses(), trapChances());
 	}
 
 	@Override
@@ -105,11 +114,27 @@ public class SwampLevel extends TaigaLevel {
 	@Override
 	public Mob createMob(){
 		switch (Random.Int(10)){
-			case 0: case 1: case 2: case 3: return new Frostbitten();
-			case 4: case 5: case 6: case 7: return new Skeleton();
-			case 8: return new Necromancer();
-			default: return new Wraith();
+			case 0: case 1: case 2: case 3: return new MireHusk();
+			case 4: case 5: case 6: return new GraveMoth();
+			default: return new BellWraith();
 		}
+	}
+
+	@Override
+	protected void createItems(){
+		for (int i = 0; i < 7 + Random.Int(4); i++){
+			Item item = Random.Int(12) == 0 ? new FuneralLantern()
+					: Random.Int(3) == 0 ? new GraveSalt() : new MireRoot();
+			dropSwampLoot(item);
+		}
+		dropSwampLoot(new ScrollOfUpgrade());
+		dropSwampLoot(new PotionOfStrength());
+		dropSwampLoot(new PotionOfHealing());
+	}
+
+	private void dropSwampLoot(Item item){
+		int cell = randomDropCell();
+		if (cell != -1) drop(item, cell).type = Heap.Type.HEAP;
 	}
 
 	@Override
@@ -126,11 +151,15 @@ public class SwampLevel extends TaigaLevel {
 
 	@Override
 	public String tileName(int tile){
-		return tile == Terrain.CUSTOM_DECO ? Gravestones.tileName() : super.tileName(tile);
+		if (tile == Terrain.CUSTOM_DECO) return Gravestones.tileName();
+		String name = SwampTerrain.name(tile);
+		return name != null ? name : super.tileName(tile);
 	}
 
 	@Override
 	public String tileDesc(int tile){
-		return tile == Terrain.CUSTOM_DECO ? Gravestones.tileDesc() : super.tileDesc(tile);
+		if (tile == Terrain.CUSTOM_DECO) return Gravestones.tileDesc();
+		String desc = SwampTerrain.desc(tile);
+		return desc != null ? desc : super.tileDesc(tile);
 	}
 }

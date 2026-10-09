@@ -944,5 +944,8 @@ if __name__ == '__main__':
 	taiga_sprites.traders_sheet().save(os.path.join(OUT, 'traders.png'))
 	taiga_sprites.animals_sheet().save(os.path.join(OUT, 'animals.png'))
 
+	import swamp_art
+	swamp_art.build_all()
+
 	splash().convert('RGB').save(os.path.join(OUT, 'splash.png'))
 	print('taiga art written to', OUT)

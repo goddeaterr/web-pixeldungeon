@@ -466,6 +466,9 @@ public class TaigaTownLevel extends Level {
 
 	@Override
 	public Group addVisuals() {
+		// The Last Hearth subclasses this level for its safe-town creation path, but
+		// the home village's restock cycle and fire effects do not belong there.
+		if (getClass() != TaigaTownLevel.class) return super.addVisuals();
 		//the traders get new goods every time the hero has reached a new floor.
 		// Done here as the scene creates the heap sprites right after this, so no sprites are needed yet.
 		if (stockDepth < Statistics.deepestFloor){

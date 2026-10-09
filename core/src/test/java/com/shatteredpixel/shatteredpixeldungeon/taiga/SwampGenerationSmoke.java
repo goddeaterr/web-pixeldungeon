@@ -10,6 +10,11 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.TaigaBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampVillageLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.TownTrader;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveWarden;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.LastHearthMerchant;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.BellWraith;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveMoth;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.MireHusk;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -71,22 +76,33 @@ public class SwampGenerationSmoke {
 				}
 				if (depth == 6){
 					check(level instanceof SwampVillageLevel, "wrong village", seed, depth);
+					check(TaigaAssets.SWAMP_TILES.equals(level.tilesTex()), "village still uses forest tiles", seed, depth);
 					invoke(level, "createMobs");
-					int shops = 0;
+					int shops = 0, dungeonMerchants = 0;
 					for (Mob mob : level.mobs) if (mob instanceof TownTrader){
 						shops++;
 						check(((TownTrader) mob).stalls.length >= 4, "shop has no stall", seed, depth);
 					}
-					check(shops == 2, "village lacks two shops", seed, depth);
+					for (Mob mob : level.mobs) if (mob instanceof LastHearthMerchant) dungeonMerchants++;
+					check(shops == 1 && dungeonMerchants == 1, "village lacks full merchant and herbalist", seed, depth);
+				}
+				if (depth >= 7 && depth <= 9){
+					check(TaigaAssets.SWAMP_TILES.equals(level.tilesTex()), "swamp still uses forest tiles", seed, depth);
+					for (int i = 0; i < 20; i++){
+						Mob mob = level.createMob();
+						check(mob instanceof MireHusk || mob instanceof GraveMoth || mob instanceof BellWraith,
+								"swamp generated a stock enemy", seed, depth);
+					}
 				}
 				if (depth == 10){
+					check(TaigaAssets.SWAMP_TILES.equals(level.tilesTex()), "boss floor still uses forest tiles", seed, depth);
 					invoke(level, "createMobs");
 					check(level.mobs.size() == 1 && level.mobs.iterator().next() instanceof GraveWarden,
 							"graveyard lacks its warden", seed, depth);
 				}
 			}
 		}
-		System.out.println("50 seeds: floors +5 to +10 have valid routes; legacy +5 save migrates; +6 has two shopkeepers");
+		System.out.println("50 seeds: +5 save migrates; +6 shop stocked; +7 to +9 use custom mobs and tiles; routes valid");
 	}
 
 	private static void invoke(Level level, String name) throws Exception {
