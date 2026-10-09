@@ -7,3 +7,11 @@ dependencies {
     api project(':SPD-classes')
     implementation project(':services')
 }
+
+tasks.register('swampSmoke', JavaExec) {
+    group = 'verification'
+    description = 'Generate the new upper floor layouts and check their routes and shops.'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.shatteredpixel.shatteredpixeldungeon.taiga.SwampGenerationSmoke'
+    dependsOn testClasses
+}

@@ -312,7 +312,7 @@ public class TaigaTownLevel extends Level {
 
 	//cells a character of the village may not path through: villagers stay inside, wild animals outside
 	public static boolean[] forbiddenCells( Char ch ){
-		if (!(Dungeon.level instanceof TaigaTownLevel)) return null;
+		if (Dungeon.level == null || Dungeon.level.getClass() != TaigaTownLevel.class) return null;
 		buildZones();
 		if (ch instanceof TownNPC || ch instanceof TownTrader) return wildZone;
 		if (ch instanceof TaigaBeast) return townZone;

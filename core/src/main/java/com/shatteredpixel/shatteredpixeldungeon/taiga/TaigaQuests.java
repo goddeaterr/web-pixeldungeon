@@ -44,12 +44,15 @@ public class TaigaQuests {
 	public static boolean shamanDone;
 
 	public static boolean leshyDefeated;
+	public static boolean villageIntroSeen;
+	public static boolean swampIntroSeen;
 
 	public static void reset(){
 		trapperGiven = alphaSpawned = trapperDone = false;
 		shamanGiven = shamanDone = false;
 		totemsBroken = 0;
 		leshyDefeated = false;
+		villageIntroSeen = swampIntroSeen = false;
 	}
 
 	private static final String NODE = "taiga_quests";
@@ -63,6 +66,8 @@ public class TaigaQuests {
 		node.put("totems_broken", totemsBroken);
 		node.put("shaman_done", shamanDone);
 		node.put("leshy_defeated", leshyDefeated);
+		node.put("village_intro_seen", villageIntroSeen);
+		node.put("swamp_intro_seen", swampIntroSeen);
 		bundle.put(NODE, node);
 	}
 
@@ -77,5 +82,7 @@ public class TaigaQuests {
 		totemsBroken = node.getInt("totems_broken");
 		shamanDone = node.getBoolean("shaman_done");
 		leshyDefeated = node.getBoolean("leshy_defeated");
+		villageIntroSeen = node.getBoolean("village_intro_seen");
+		swampIntroSeen = node.getBoolean("swamp_intro_seen");
 	}
 }

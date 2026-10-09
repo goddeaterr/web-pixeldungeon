@@ -16,7 +16,7 @@ with an added **`html`** module: a browser build (libGDX + [TeaVM](https://teavm
 ## Contents
 
 - [Mod: the taiga village (floor 0)](#mod-the-taiga-village-floor-0)
-- [Mod: the Old Taiga (5 floors up)](#mod-the-old-taiga-5-floors-up)
+- [Mod: the ascent (10 floors up)](#mod-the-ascent-10-floors-up)
 - [Quick start](#quick-start)
 - [Building](#building)
 - [Deploying to Vercel](#deploying-to-vercel)
@@ -67,10 +67,10 @@ The village layout is `mod/town_map.txt` (legend in `TaigaTownLevel.java`). Afte
 `python mod/map_to_java.py` (copies it into `TaigaTownLevel.MAP`) and `python mod/town_preview.py preview.png`
 (renders the village with the game's tile rules, without building the game).
 
-## Mod: the Old Taiga (5 floors up)
+## Mod: the ascent (10 floors up)
 
-The Old Trail leads from the village up into the taiga: five floors of their own, counted upwards (the menu shows
-`+1` … `+5`), ending with a boss. They are a separate dungeon branch (`TaigaBranch`, branch 4), so they have their
+The Old Trail leads from the village up into the taiga and then the snowy swamp: ten playable floors, counted upwards
+(the menu shows `+1` … `+10`). They are a separate dungeon branch (`TaigaBranch`, branch 4), so they have their
 own level files and seeds and never touch the dungeon's floors, statistics or item decks.
 
 The lore: since the dark energy began rising from Yendor's dungeon, winter in the taiga has never ended. Wolves grew
@@ -84,6 +84,11 @@ Each floor greets the hero with a line about it; the quest givers tell the rest.
 | +3 | the Frozen Lakes | lakes and streams with bridges | frost wolves, ice wisps, frostbitten, brown bears |
 | +4 | the Shaman's Hills | snowy thickets; **the shaman's circle**, 3 corrupted totems | wisps, frostbitten, bears, spruce treants |
 | +5 | the Leshy's Grove | a great round grove of ancient spruces | **the Leshy** |
+| +6 | the Last Hearth | a small, shuttered village with two shops | two traders, one villager |
+| +7 | the Drowned Path | flooded tracks, sparse dead forest, rising wind | frostbitten, skeletons, necromancers, wraiths |
+| +8 | the Snowy Swamp | black water and sideways snow | undead |
+| +9 | the Forgotten Graves | almost no living trees or grass | undead |
+| +10 | the Sunken Graveyard | collapsed burial ground | **the Grave Warden** |
 
 Floors 1-4 are generated like dungeon floors (`TaigaLevel`, a `RegularLevel` with forest instead of walls and no
 doors between clearings), with about twice the rooms of a sewer floor, their own room types (glades, frozen ponds,
@@ -112,10 +117,18 @@ out of it a turn later (damage and rooting; bushes sprout where they burst), sli
 another, and calls two frost wolves at 3/4 health. At half health a blizzard starts, the two spruces nearest to the
 hero wake up as treants, the roots come faster, and he fells spruces along a marked line toward the hero. He drops
 **the Leshy's crook** (tier 4, reach 2, roots on hit) and **the Heart of the Taiga** (+10 maximum health for good).
-The pass north of the grove is snowed in for now: that's where the next region will start.
+The pass north of the grove opens onto +6 after the fight. Entering the first village from the dungeon shows
+illustrated lore about the corruption climbing uphill; entering the Last Hearth tells how the graves began moving.
+The new region has greyer, darker terrain, progressively heavier and faster snow, more water and fewer living trees.
+Its three middle floors generate separate swamp layouts. The Grave Warden seals +10 when alerted and drops strength
+and upgrade supplies when defeated.
+
+The intended ascent is 25 floors across five biomes. Floors +11 through +25 are still to be built; the planned
+sequence is an ash moor with dying roots, a bare grey highland where even the snow falls silent, and a lifeless summit.
+Each biome change will reveal another part of how the dungeon's corruption reached the surface.
 
 Developer commands for testing, in debug builds only (`./gradlew html:distDebug -PwebDebug`), in the browser
-console: `spd.debug("goto 3 4")` (taiga floor 3; `goto 0 0` is the village), `spd.debug("reveal")`,
+console: `spd.debug("goto 8 4")` (swamp floor +8; `goto 0 0` is the first village), `spd.debug("reveal")`,
 `spd.debug("tough")`, `spd.debug("tp Trapper")`, `spd.debug("talk Shaman")`,
 `spd.debug("give taiga.items.AlphaFang")`, `spd.debug("info WildBoar")`,
 `spd.debug("info PineNutBread")`. See `html/.../WebDebug.java`.
@@ -126,7 +139,7 @@ Changes outside the `taiga` package, each marked `// MOD:` in the code:
 |---|---|
 | `Dungeon.newLevel` | depth 0 → `TaigaTownLevel`; the taiga branch → `TaigaBranch.newLevel` |
 | `Dungeon.init`, `saveGame`, `loadGame` | the taiga quests (`TaigaQuests`) are reset / saved / loaded with the dungeon's |
-| `ui/MenuPane` | taiga floors show their depth as `+1` … `+5` |
+| `ui/MenuPane` | upper floors show their depth as `+1` … `+10` |
 | `levels/SewerLevel.activateTransition` | stairs up → the village; with the Amulet: choose ending or village |
 | `actors/mobs/npcs/Shopkeeper.sellPrice` | village prices |
 | `sprites/ItemSprite.frame` | village items are drawn from `taiga/items.png` |

@@ -28,30 +28,34 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.TaigaBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.TaigaLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampVillageLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 /**
- * MOD (taiga town): the floors above the village, "the Old Taiga".
+ * MOD (taiga town): the floors above the village, beginning with the Old Taiga.
  *
  * They are a dungeon branch of their own (like the mining and vault quest areas), so their depths
- * (1-5, counted upwards from the village) never mix with the dungeon's: separate level files, seeds
- * and statistics. The village trail leads to floor 1, floor 5 is the Leshy's grove.
+ * (counted upwards from the village) never mix with the dungeon's: separate level files and seeds.
+ * The village trail leads to +1, the Leshy guards +5, and the snowy swamp reaches +10.
  */
 public class TaigaBranch {
 
 	//branch 1 is used by the dungeon's quest areas
 	public static final int BRANCH = 4;
-	public static final int FLOORS = 5;
+	public static final int FLOORS = 10;
 
 	public static boolean active(){
 		return Dungeon.branch == BRANCH;
 	}
 
 	public static Level newLevel( int depth ){
-		if (depth >= FLOORS){
-			return new TaigaBossLevel();
-		}
-		return new TaigaLevel();
+		if (depth <= 4) return new TaigaLevel();
+		if (depth == 5) return new TaigaBossLevel();
+		if (depth == 6) return new SwampVillageLevel();
+		if (depth <= 9) return new SwampLevel();
+		return new SwampBossLevel();
 	}
 
 	public static String floorName( int depth ){
@@ -65,7 +69,7 @@ public class TaigaBranch {
 		GLog.i( Messages.get(TaigaBranch.class, "flavor_" + Math.max(1, Math.min(FLOORS, Dungeon.depth))) );
 	}
 
-	//the depth shown in the menu: taiga floors count upwards, "+1" .. "+5"
+	//the depth shown in the menu: upper floors count upwards
 	public static String depthLabel(){
 		return active() ? "+" + Dungeon.depth : Integer.toString(Dungeon.depth);
 	}
@@ -82,6 +86,12 @@ public class TaigaBranch {
 			return t.destBranch == BRANCH || (t.destBranch == 0 && t.destDepth == 0);
 		}
 		return loadingDepth == 0 || (active() && InterlevelScene.mode != InterlevelScene.Mode.CONTINUE);
+	}
+
+	public static boolean swampLoading( int loadingDepth ){
+		LevelTransition t = InterlevelScene.curTransition;
+		return (t != null && t.destBranch == BRANCH && t.destDepth >= 6)
+				|| (t == null && active() && loadingDepth >= 6);
 	}
 
 	//"Descending..." would be wrong when climbing the mountain

@@ -34,6 +34,8 @@ public class TaigaAssets {
 	public static final String RAISED_TERRAIN   = "taiga/raised_terrain.png";
 	public static final String WATER            = "taiga/water.png";
 	public static final String SPLASH           = "taiga/splash.png";
+	public static final String VILLAGE_ARRIVAL  = "taiga/village_arrival.png";
+	public static final String SWAMP_SPLASH     = "taiga/swamp_splash.png";
 
 	public static final String ITEMS            = "taiga/items.png";
 	public static final String VILLAGERS        = "taiga/villagers.png";

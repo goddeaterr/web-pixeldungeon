@@ -37,7 +37,7 @@ public class Snowfall extends Emitter {
 	public Snowfall( float width, float height, float intensity ){
 		super();
 		pos( 0, -16, width, height );
-		pour( intensity > 1f ? Flake.BLIZZARD : Flake.FACTORY,
+		pour( intensity > 1f ? Flake.blizzard(intensity) : Flake.FACTORY,
 				30f / Math.max(1f, (width * height) / 256f) / intensity );
 	}
 
@@ -55,15 +55,18 @@ public class Snowfall extends Emitter {
 			}
 		};
 
-		public static final Factory BLIZZARD = new Factory() {
-			@Override
-			public void emit( Emitter emitter, int index, float x, float y ) {
-				Flake f = (Flake)emitter.recycle( Flake.class );
-				f.reset( x, y );
-				f.speed.set( Random.Float( 20f, 40f ), Random.Float( 18f, 30f ) );
-				f.left = f.lifespan = Random.Float( 1.5f, 3f );
-			}
-		};
+		public static Factory blizzard(final float intensity){
+			return new Factory() {
+				@Override
+				public void emit( Emitter emitter, int index, float x, float y ) {
+					Flake f = (Flake)emitter.recycle( Flake.class );
+					f.reset( x, y );
+					float wind = 0.65f + intensity * 0.14f;
+					f.speed.set( Random.Float( 20f, 40f ) * wind, Random.Float( 18f, 30f ) );
+					f.left = f.lifespan = Random.Float( 1.5f, 3f );
+				}
+			};
+		}
 
 		private float phase;
 

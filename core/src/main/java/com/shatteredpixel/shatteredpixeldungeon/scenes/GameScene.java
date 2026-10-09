@@ -335,6 +335,14 @@ public class GameScene extends PixelScene {
 
 		walls = new DungeonWallsTilemap();
 		add(walls);
+		// The swamp above the taiga loses the forest's warmth and color.
+		if (TaigaBranch.active() && Dungeon.depth >= 6){
+			tiles.color(0xA4A7B6);
+			walls.color(0x89909D);
+			raisedTerrain.color(0x89909D);
+			terrainFeatures.color(0x89909D);
+			water.color(0x909BAA);
+		}
 
 		customWalls = new Group();
 		add(customWalls);
@@ -660,7 +668,7 @@ public class GameScene extends PixelScene {
 				GLog.h(Messages.get(this, "warp"));
 			} else if (InterlevelScene.mode == InterlevelScene.Mode.RESURRECT) {
 				GLog.h(Messages.get(this, "resurrect"), Dungeon.depth);
-			} else if (Dungeon.level instanceof TaigaTownLevel) {
+			} else if (Dungeon.level != null && Dungeon.level.getClass() == TaigaTownLevel.class) {
 				// MOD: arriving in the taiga village (floor 0)
 				GLog.h(((TaigaTownLevel) Dungeon.level).arrivalMessage());
 			} else if (TaigaBranch.active()) {

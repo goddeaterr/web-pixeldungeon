@@ -51,6 +51,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaQuests;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.input.KeyEvent;
 import com.watabou.noosa.Camera;
@@ -169,6 +171,11 @@ public class InterlevelScene extends PixelScene {
 		//flush the texture cache whenever moving between regions, helps reduce memory load
 		// MOD: the taiga village and the taiga floors use region 0, which shows the taiga picture
 		int region = TaigaBranch.taigaLoading(loadingDepth) ? 0 : (int)Math.ceil(loadingDepth / 5f);
+		final boolean villageArrival = curTransition != null && curTransition.destBranch == 0
+				&& curTransition.destDepth == 0;
+		final boolean villageStory = villageArrival && !TaigaQuests.villageIntroSeen;
+		final boolean swampStory = curTransition != null && curTransition.destBranch == TaigaBranch.BRANCH
+				&& curTransition.destDepth == 6 && !TaigaQuests.swampIntroSeen;
 		if (region != lastRegion){
 			TextureCache.clear();
 			TitleBackground.reset();
@@ -182,7 +189,9 @@ public class InterlevelScene extends PixelScene {
 			switch (lastRegion){
 				// MOD: the taiga village (floor 0) has its own loading picture
 				case 0:
-					loadingAsset = TaigaAssets.SPLASH;
+					loadingAsset = villageArrival ? TaigaAssets.VILLAGE_ARRIVAL
+							: TaigaBranch.swampLoading(loadingDepth) ? TaigaAssets.SWAMP_SPLASH : TaigaAssets.SPLASH;
+					if (villageArrival || TaigaBranch.swampLoading(loadingDepth)) loadingCenter = 830;
 					break;
 				case 1:
 					loadingAsset = Assets.Splashes.SEWERS;
@@ -287,10 +296,12 @@ public class InterlevelScene extends PixelScene {
 		align(loadingText);
 		add(loadingText);
 
-		if (mode == Mode.DESCEND && lastRegion <= 5 && !DeviceCompat.isDebug()){
-			if (Dungeon.hero == null || (loadingDepth > Statistics.deepestFloor && loadingDepth % 5 == 1)){
-					storyMessage = PixelScene.renderTextBlock(Document.INTROS.pageBody(region), 6);
-					storyMessage.maxWidth( PixelScene.landscape() ? 180 : 125);
+		if ((villageStory || swampStory || (mode == Mode.DESCEND && lastRegion <= 5)) && !DeviceCompat.isDebug()){
+			if (villageStory || swampStory || Dungeon.hero == null || (loadingDepth > Statistics.deepestFloor && loadingDepth % 5 == 1)){
+					String storyText = villageStory ? Messages.get(TaigaTownLevel.class, "intro")
+							: swampStory ? Messages.get(TaigaBranch.class, "swamp_intro") : Document.INTROS.pageBody(region);
+					storyMessage = PixelScene.renderTextBlock(storyText, 6);
+					storyMessage.maxWidth( Math.max(90, Math.min(PixelScene.landscape() ? 220 : 165, w - 24)) );
 					storyMessage.setPos(insets.left+(w-storyMessage.width())/2f, insets.top+(h-storyMessage.height())/2f);
 
 					storyBG = new ShadowBox();
@@ -306,7 +317,9 @@ public class InterlevelScene extends PixelScene {
 							timeLeft = fadeTime;
 
 							btnContinue.enable(false);
-							Document.INTROS.readPage(region);
+							if (villageStory) TaigaQuests.villageIntroSeen = true;
+							else if (swampStory) TaigaQuests.swampIntroSeen = true;
+							else Document.INTROS.readPage(region);
 						}
 					};
 					btnContinue.icon(Icons.STAIRS.get());
@@ -338,7 +351,9 @@ public class InterlevelScene extends PixelScene {
 									phase = Phase.FADE_OUT;
 									timeLeft = fadeTime;
 									btnContinue.enable(false);
-									Document.INTROS.readPage(region);
+									if (villageStory) TaigaQuests.villageIntroSeen = true;
+									else if (swampStory) TaigaQuests.swampIntroSeen = true;
+									else Document.INTROS.readPage(region);
 								}
 								return true;
 							}

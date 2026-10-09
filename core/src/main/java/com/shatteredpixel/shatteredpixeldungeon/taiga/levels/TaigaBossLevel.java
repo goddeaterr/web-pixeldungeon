@@ -46,8 +46,7 @@ import com.watabou.utils.Random;
 
 /**
  * MOD (taiga town): taiga floor 5, the Leshy's grove. A great round clearing full of old spruces, reached by a
- * trail from the south. The grove is sealed while the Leshy lives. The pass beyond it to the north stays
- * snowed in for now: that's where the next region will start.
+ * trail from the south. The grove is sealed while the Leshy lives. The northern pass leads to +6.
  */
 public class TaigaBossLevel extends Level {
 
@@ -145,11 +144,11 @@ public class TaigaBossLevel extends Level {
 			}
 		}
 
-		//the snowed-in pass to the north
-		for (int y = 2; y < CY - R + 2; y++){
-			map[CX + y * W] = Terrain.EMPTY_DECO;
-		}
-		map[CX + W] = Terrain.WALL;
+		//the pass beyond the grove leads to the last inhabited village
+		for (int y = 1; y < CY; y++) map[CX + y * W] = Terrain.EMPTY;
+		int pass = CX + W;
+		map[pass] = Terrain.ENTRANCE;
+		transitions.add( new LevelTransition( this, pass, LevelTransition.Type.REGULAR_EXIT ) );
 
 		return true;
 	}
