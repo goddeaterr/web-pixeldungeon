@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaQuests;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Leshy;
@@ -144,12 +145,21 @@ public class TaigaBossLevel extends Level {
 			}
 		}
 
-		//the pass beyond the grove leads to the last inhabited village
+		ensureNorthernPass();
+
+		return true;
+	}
+
+	/** Adds the route to +6 to newly built groves and saves made before that route existed. */
+	private boolean ensureNorthernPass() {
+		for (LevelTransition transition : transitions) {
+			if (transition.type == LevelTransition.Type.REGULAR_EXIT) return false;
+		}
 		for (int y = 1; y < CY; y++) map[CX + y * W] = Terrain.EMPTY;
 		int pass = CX + W;
 		map[pass] = Terrain.ENTRANCE;
-		transitions.add( new LevelTransition( this, pass, LevelTransition.Type.REGULAR_EXIT ) );
-
+		transitions.add(new LevelTransition(this, pass, LevelTransition.Type.REGULAR_EXIT,
+				6, TaigaBranch.BRANCH, LevelTransition.Type.REGULAR_ENTRANCE));
 		return true;
 	}
 
@@ -241,6 +251,10 @@ public class TaigaBossLevel extends Level {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
+		if (ensureNorthernPass()) {
+			buildFlagMaps();
+			cleanWalls();
+		}
 		blizzard = bundle.getBoolean( BLIZZARD );
 	}
 }
