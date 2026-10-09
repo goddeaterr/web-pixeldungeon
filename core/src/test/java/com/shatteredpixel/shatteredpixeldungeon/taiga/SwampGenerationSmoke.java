@@ -14,6 +14,12 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.LastHearthMerchant;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.BellWraith;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveMoth;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.MireHusk;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.AshGardener;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GlassMoth;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.HollowScarecrow;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GlassConservator;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.OrchardMerchant;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 
 import java.lang.reflect.Method;
@@ -31,10 +37,25 @@ public class SwampGenerationSmoke {
 	public static void main(String[] args) throws Exception {
 		Game.version = "test";
 		Game.versionCode = ShatteredPixelDungeon.v3_1_1;
+		Dungeon.seed = 1;
+		Dungeon.branch = 0;
+		Dungeon.depth = 0;
+		TaigaQuests.summitKeyFound = false;
+		Level town = new TaigaTownLevel();
+		town.transitions = new ArrayList<>();
+		town.mobs = new HashSet<>();
+		town.blobs = new HashMap<>();
+		town.traps = new SparseArray<>();
+		town.plants = new SparseArray<>();
+		town.heaps = new SparseArray<>();
+		invoke(town, "build");
+		check(town.getTransition(LevelTransition.Type.BRANCH_EXIT) != null
+				&& town.exit() == town.getTransition(LevelTransition.Type.BRANCH_EXIT).cell(),
+				"new village start does not direct the player uphill", 1, 0);
 		for (long seed = 1; seed <= 50; seed++){
 			Dungeon.seed = seed;
 			Dungeon.branch = TaigaBranch.BRANCH;
-			for (int depth = 5; depth <= 10; depth++){
+			for (int depth = 5; depth <= 16; depth++){
 				Dungeon.depth = depth;
 				Level level = TaigaBranch.newLevel(depth);
 				Dungeon.level = level;
@@ -68,8 +89,24 @@ public class SwampGenerationSmoke {
 					check(level.transitions.stream().filter(t -> t.type == LevelTransition.Type.REGULAR_EXIT).count() == 1,
 							"old grove has duplicate or missing exit", seed, depth);
 				}
+				if (depth == 10 && seed == 1){
+					// An already visited +10 graveyard must acquire the new climb on load.
+					level.transitions.removeIf(t -> t.type == LevelTransition.Type.REGULAR_EXIT);
+					level.map[15 + level.width()] = Terrain.WALL;
+					level.customTiles = new ArrayList<>();
+					level.customTerrain = new ArrayList<>();
+					level.customWalls = new ArrayList<>();
+					Bundle saved = new Bundle();
+					level.storeInBundle(saved);
+					level = new SwampBossLevel();
+					Dungeon.level = level;
+					level.restoreFromBundle(saved);
+					check(level.map[15 + level.width()] == Terrain.ENTRANCE, "old graveyard pass stays blocked", seed, depth);
+					check(level.transitions.stream().filter(t -> t.type == LevelTransition.Type.REGULAR_EXIT).count() == 1,
+							"old graveyard has duplicate or missing exit", seed, depth);
+				}
 				check(level.entrance() >= 0, "missing way down", seed, depth);
-				if (depth < 10){
+				if (depth < 16){
 					check(level.exit() >= 0, "missing way up", seed, depth);
 					if (!reachable(level, level.entrance(), level.exit())) dump(level);
 					check(reachable(level, level.entrance(), level.exit()), "unreachable way up", seed, depth);
@@ -100,9 +137,30 @@ public class SwampGenerationSmoke {
 					check(level.mobs.size() == 1 && level.mobs.iterator().next() instanceof GraveWarden,
 							"graveyard lacks its warden", seed, depth);
 				}
+				if (depth >= 11){
+					check(TaigaAssets.ORCHARD_TILES.equals(level.tilesTex()), "orchard uses an older tile sheet", seed, depth);
+				}
+				if (depth == 11){
+					invoke(level, "createMobs");
+					check(level.mobs.stream().anyMatch(m -> m instanceof OrchardMerchant), "waystation lacks its shopkeeper", seed, depth);
+				}
+				if (depth >= 12 && depth <= 14){
+					for (int i = 0; i < 20; i++){
+						Mob mob = level.createMob();
+						check(mob instanceof AshGardener || mob instanceof GlassMoth || mob instanceof HollowScarecrow,
+								"orchard generated an old enemy", seed, depth);
+					}
+				}
+				if (depth == 15){
+					invoke(level, "createMobs");
+					check(level.mobs.size() == 1 && level.mobs.iterator().next() instanceof GlassConservator,
+							"conservatory lacks its boss", seed, depth);
+				}
+				if (depth == 16) check(level.transitions.stream().noneMatch(t -> t.type == LevelTransition.Type.REGULAR_EXIT),
+						"unfinished +17 is reachable", seed, depth);
 			}
 		}
-		System.out.println("50 seeds: +5 save migrates; +6 shop stocked; +7 to +9 use custom mobs and tiles; routes valid");
+		System.out.println("50 seeds: +5 and +10 saves migrate; +6 and +11 shops; custom mobs and tiles; routes to +16 valid");
 	}
 
 	private static void invoke(Level level, String name) throws Exception {

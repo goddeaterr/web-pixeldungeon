@@ -17,6 +17,7 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.BellWraith;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveMoth;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.MireHusk;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.Snowfall;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.MireMist;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.items.GraveSalt;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.items.MireRoot;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.items.FuneralLantern;
@@ -146,6 +147,8 @@ public class SwampLevel extends TaigaLevel {
 		Gravestones.add(visuals, this);
 		visuals.add(new Snowfall(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE,
 				3.5f + (Dungeon.depth - 7)));
+		visuals.add(new MireMist(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE,
+				1f + 0.25f * (Dungeon.depth - 7)));
 		return visuals;
 	}
 

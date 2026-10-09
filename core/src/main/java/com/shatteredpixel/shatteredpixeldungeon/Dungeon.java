@@ -263,7 +263,8 @@ public class Dungeon {
 		QuickSlotButton.reset();
 		Toolbar.swappedQuickslots = false;
 		
-		depth = 1;
+		// New journeys begin at the village fire, before either the mine or the mountain.
+		depth = 0;
 		branch = 0;
 		generatedLevels.clear();
 

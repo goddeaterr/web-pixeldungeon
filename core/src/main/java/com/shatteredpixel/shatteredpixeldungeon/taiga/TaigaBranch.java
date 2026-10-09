@@ -31,6 +31,10 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.TaigaLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampVillageLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampBossLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardWaystationLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardBossLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandOutpostLevel;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 /**
@@ -38,13 +42,13 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
  *
  * They are a dungeon branch of their own (like the mining and vault quest areas), so their depths
  * (counted upwards from the village) never mix with the dungeon's: separate level files and seeds.
- * The village trail leads to +1, the Leshy guards +5, and the snowy swamp reaches +10.
+ * The village trail leads to +1, the snowy swamp reaches +10, and the Grey Orchard reaches +16.
  */
 public class TaigaBranch {
 
 	//branch 1 is used by the dungeon's quest areas
 	public static final int BRANCH = 4;
-	public static final int FLOORS = 10;
+	public static final int FLOORS = 16;
 
 	public static boolean active(){
 		return Dungeon.branch == BRANCH;
@@ -55,7 +59,11 @@ public class TaigaBranch {
 		if (depth == 5) return new TaigaBossLevel();
 		if (depth == 6) return new SwampVillageLevel();
 		if (depth <= 9) return new SwampLevel();
-		return new SwampBossLevel();
+		if (depth == 10) return new SwampBossLevel();
+		if (depth == 11) return new OrchardWaystationLevel();
+		if (depth <= 14) return new OrchardLevel();
+		if (depth == 15) return new OrchardBossLevel();
+		return new HighlandOutpostLevel();
 	}
 
 	public static String floorName( int depth ){
@@ -90,12 +98,20 @@ public class TaigaBranch {
 
 	public static boolean swampLoading( int loadingDepth ){
 		LevelTransition t = InterlevelScene.curTransition;
-		return (t != null && t.destBranch == BRANCH && t.destDepth >= 6)
-				|| (t == null && active() && loadingDepth >= 6);
+		return (t != null && t.destBranch == BRANCH && t.destDepth >= 6 && t.destDepth <= 10)
+				|| (t == null && active() && loadingDepth >= 6 && loadingDepth <= 10);
+	}
+
+	public static boolean orchardLoading( int loadingDepth ){
+		LevelTransition t = InterlevelScene.curTransition;
+		return (t != null && t.destBranch == BRANCH && t.destDepth >= 11)
+				|| (t == null && active() && loadingDepth >= 11);
 	}
 
 	//"Descending..." would be wrong when climbing the mountain
 	public static String loadingText( InterlevelScene.Mode mode ){
+		if (mode == InterlevelScene.Mode.DESCEND && Dungeon.hero == null)
+			return Messages.get(TaigaBranch.class, "waking");
 		if (taigaTransition()){
 			if (mode == InterlevelScene.Mode.DESCEND) return Messages.get(TaigaBranch.class, "climbing");
 			if (mode == InterlevelScene.Mode.ASCEND)  return Messages.get(TaigaBranch.class, "going_down");

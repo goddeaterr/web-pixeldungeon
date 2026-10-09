@@ -11,10 +11,12 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GraveWarden;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.Snowfall;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.MireMist;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Music;
 import com.watabou.utils.Random;
+import com.watabou.utils.Bundle;
 
 /** Floor +10, the graveyard at the deepest reach of the snowy swamp. */
 public class SwampBossLevel extends Level {
@@ -62,7 +64,23 @@ public class SwampBossLevel extends Level {
 		int down = cell(15, H - 2);
 		map[down] = Terrain.EXIT;
 		transitions.add(new LevelTransition(this, down, LevelTransition.Type.REGULAR_ENTRANCE));
+		ensureOrchardPass();
 		return true;
+	}
+
+	/** Add the climb to +11 to newly generated graveyards and older saved fights. */
+	private void ensureOrchardPass(){
+		for (LevelTransition t : transitions) if (t.type == LevelTransition.Type.REGULAR_EXIT) return;
+		for (int y = 1; y <= 13; y++) map[cell(15, y)] = Terrain.EMPTY_SP;
+		int up = cell(15, 1);
+		map[up] = Terrain.ENTRANCE;
+		transitions.add(new LevelTransition(this, up, LevelTransition.Type.REGULAR_EXIT));
+	}
+
+	@Override public void restoreFromBundle(Bundle bundle){
+		super.restoreFromBundle(bundle);
+		ensureOrchardPass();
+		buildFlagMaps();
 	}
 
 	@Override
@@ -92,6 +110,7 @@ public class SwampBossLevel extends Level {
 		super.addVisuals();
 		Gravestones.add(visuals, this);
 		visuals.add(new Snowfall(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE, 6f));
+		visuals.add(new MireMist(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE, 1.6f));
 		return visuals;
 	}
 

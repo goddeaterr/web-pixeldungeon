@@ -141,7 +141,7 @@ public class InterlevelScene extends PixelScene {
 				break;
 			case DESCEND:
 				if (Dungeon.hero == null){
-					loadingDepth = 1;
+					loadingDepth = 0;
 					fadeTime = SLOW_FADE;
 				} else {
 					if (curTransition != null)  loadingDepth = curTransition.destDepth;
@@ -171,11 +171,15 @@ public class InterlevelScene extends PixelScene {
 		//flush the texture cache whenever moving between regions, helps reduce memory load
 		// MOD: the taiga village and the taiga floors use region 0, which shows the taiga picture
 		int region = TaigaBranch.taigaLoading(loadingDepth) ? 0 : (int)Math.ceil(loadingDepth / 5f);
-		final boolean villageArrival = curTransition != null && curTransition.destBranch == 0
-				&& curTransition.destDepth == 0;
-		final boolean villageStory = villageArrival && !TaigaQuests.villageIntroSeen;
+		final boolean villageArrival = (curTransition != null && curTransition.destBranch == 0
+				&& curTransition.destDepth == 0) || (mode == Mode.DESCEND && Dungeon.hero == null);
+		final boolean villageStory = villageArrival && (Dungeon.hero == null || !TaigaQuests.villageIntroSeen);
 		final boolean swampStory = curTransition != null && curTransition.destBranch == TaigaBranch.BRANCH
 				&& curTransition.destDepth == 6 && !TaigaQuests.swampIntroSeen;
+		final boolean orchardStory = curTransition != null && curTransition.destBranch == TaigaBranch.BRANCH
+				&& curTransition.destDepth == 11 && !TaigaQuests.orchardIntroSeen;
+		final boolean highlandStory = curTransition != null && curTransition.destBranch == TaigaBranch.BRANCH
+				&& curTransition.destDepth == 16 && !TaigaQuests.highlandIntroSeen;
 		if (region != lastRegion){
 			TextureCache.clear();
 			TitleBackground.reset();
@@ -190,8 +194,10 @@ public class InterlevelScene extends PixelScene {
 				// MOD: the taiga village (floor 0) has its own loading picture
 				case 0:
 					loadingAsset = villageArrival ? TaigaAssets.VILLAGE_ARRIVAL
+							: TaigaBranch.orchardLoading(loadingDepth) ? TaigaAssets.ORCHARD_ARRIVAL
 							: TaigaBranch.swampLoading(loadingDepth) ? TaigaAssets.SWAMP_SPLASH : TaigaAssets.SPLASH;
 					if (villageArrival || TaigaBranch.swampLoading(loadingDepth)) loadingCenter = 830;
+					if (TaigaBranch.orchardLoading(loadingDepth)) loadingCenter = 760;
 					break;
 				case 1:
 					loadingAsset = Assets.Splashes.SEWERS;
@@ -296,10 +302,12 @@ public class InterlevelScene extends PixelScene {
 		align(loadingText);
 		add(loadingText);
 
-		if ((villageStory || swampStory || (mode == Mode.DESCEND && lastRegion <= 5)) && !DeviceCompat.isDebug()){
-			if (villageStory || swampStory || Dungeon.hero == null || (loadingDepth > Statistics.deepestFloor && loadingDepth % 5 == 1)){
+		if ((villageStory || swampStory || orchardStory || highlandStory || (mode == Mode.DESCEND && lastRegion <= 5)) && !DeviceCompat.isDebug()){
+			if (villageStory || swampStory || orchardStory || highlandStory || Dungeon.hero == null || (loadingDepth > Statistics.deepestFloor && loadingDepth % 5 == 1)){
 					String storyText = villageStory ? Messages.get(TaigaTownLevel.class, "intro")
-							: swampStory ? Messages.get(TaigaBranch.class, "swamp_intro") : Document.INTROS.pageBody(region);
+							: swampStory ? Messages.get(TaigaBranch.class, "swamp_intro")
+							: orchardStory ? Messages.get(TaigaBranch.class, "orchard_intro")
+							: highlandStory ? Messages.get(TaigaBranch.class, "highland_intro") : Document.INTROS.pageBody(region);
 					storyMessage = PixelScene.renderTextBlock(storyText, 6);
 					storyMessage.maxWidth( Math.max(90, Math.min(PixelScene.landscape() ? 220 : 165, w - 24)) );
 					storyMessage.setPos(insets.left+(w-storyMessage.width())/2f, insets.top+(h-storyMessage.height())/2f);
@@ -319,6 +327,8 @@ public class InterlevelScene extends PixelScene {
 							btnContinue.enable(false);
 							if (villageStory) TaigaQuests.villageIntroSeen = true;
 							else if (swampStory) TaigaQuests.swampIntroSeen = true;
+							else if (orchardStory) TaigaQuests.orchardIntroSeen = true;
+							else if (highlandStory) TaigaQuests.highlandIntroSeen = true;
 							else Document.INTROS.readPage(region);
 						}
 					};
@@ -353,6 +363,8 @@ public class InterlevelScene extends PixelScene {
 									btnContinue.enable(false);
 									if (villageStory) TaigaQuests.villageIntroSeen = true;
 									else if (swampStory) TaigaQuests.swampIntroSeen = true;
+									else if (orchardStory) TaigaQuests.orchardIntroSeen = true;
+									else if (highlandStory) TaigaQuests.highlandIntroSeen = true;
 									else Document.INTROS.readPage(region);
 								}
 								return true;
@@ -671,7 +683,8 @@ public class InterlevelScene extends PixelScene {
 			}
 
 			Level level = Dungeon.newLevel();
-			Dungeon.switchLevel( level, -1 );
+			Dungeon.switchLevel(level, level instanceof TaigaTownLevel
+					? ((TaigaTownLevel) level).startCell() : -1);
 		} else {
 			if (curTransition.destBranch != Dungeon.branch && Dungeon.depth >= 16 && Dungeon.depth <= 20) {
 				//FIXME avoids holding allies when entering city quest area, this is very sloppy though

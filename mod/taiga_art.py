@@ -282,6 +282,13 @@ def mine_exit():
 	for y in range(5, 13, 2):
 		for x in range(6, 10):
 			px(img, x, y, WOOD[4] if y < 9 else WOOD[2])
+	# The mountain's mine is barred until the summit key is recovered.
+	for x in (4, 7, 10, 12):
+		for y in range(4, 14): px(img, x, y, rgb(0x7d8990) if x % 2 else rgb(0x4d5962))
+	for y in (6, 11):
+		for x in range(3, 13): px(img, x, y, rgb(0x9ca8ad) if x % 3 else rgb(0x5d6971))
+	for y in range(7, 10):
+		for x in range(7, 10): px(img, x, y, rgb(0x8b8072))
 	# snow lip
 	for x in range(3, 13, 2):
 		px(img, x, 4, SNOW_SH2)
@@ -946,6 +953,8 @@ if __name__ == '__main__':
 
 	import swamp_art
 	swamp_art.build_all()
+	import orchard_art
+	orchard_art.build_all()
 
 	splash().convert('RGB').save(os.path.join(OUT, 'splash.png'))
 	print('taiga art written to', OUT)

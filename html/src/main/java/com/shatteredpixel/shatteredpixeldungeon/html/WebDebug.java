@@ -99,14 +99,18 @@ public class WebDebug {
 				}
 				break;
 			case "info":
+				String infoName = parts[1];
+				boolean mobOnly = infoName.startsWith("mob:");
+				boolean itemOnly = infoName.startsWith("item:");
+				if (mobOnly || itemOnly) infoName = infoName.substring(mobOnly ? 4 : 5);
 				for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob m : Dungeon.level.mobs){
-					if (m.getClass().getSimpleName().equals(parts[1])){
+					if (!itemOnly && m.getClass().getSimpleName().equals(infoName)){
 						GameScene.show( new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoMob( m ) );
 						return;
 					}
 				}
-				Class<?> c = Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.items." + parts[1] );
-				if (c == null) c = Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.actors." + parts[1] );
+				Class<?> c = itemOnly || !mobOnly ? Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.items." + infoName ) : null;
+				if (c == null && !itemOnly) c = Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.actors." + infoName );
 				Object o = c == null ? null : Reflection.newInstance( c );
 				if (o instanceof Item){
 					GameScene.show( new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem( (Item) o ) );

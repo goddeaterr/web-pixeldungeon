@@ -46,13 +46,18 @@ public class TaigaQuests {
 	public static boolean leshyDefeated;
 	public static boolean villageIntroSeen;
 	public static boolean swampIntroSeen;
+	public static boolean orchardIntroSeen;
+	public static boolean highlandIntroSeen;
+	// +25 will award the eventual summit key; the mine stays shut until then.
+	public static boolean summitKeyFound;
 
 	public static void reset(){
 		trapperGiven = alphaSpawned = trapperDone = false;
 		shamanGiven = shamanDone = false;
 		totemsBroken = 0;
 		leshyDefeated = false;
-		villageIntroSeen = swampIntroSeen = false;
+		villageIntroSeen = swampIntroSeen = orchardIntroSeen = highlandIntroSeen = false;
+		summitKeyFound = false;
 	}
 
 	private static final String NODE = "taiga_quests";
@@ -68,6 +73,9 @@ public class TaigaQuests {
 		node.put("leshy_defeated", leshyDefeated);
 		node.put("village_intro_seen", villageIntroSeen);
 		node.put("swamp_intro_seen", swampIntroSeen);
+		node.put("orchard_intro_seen", orchardIntroSeen);
+		node.put("highland_intro_seen", highlandIntroSeen);
+		node.put("summit_key_found", summitKeyFound);
 		bundle.put(NODE, node);
 	}
 
@@ -84,5 +92,8 @@ public class TaigaQuests {
 		leshyDefeated = node.getBoolean("leshy_defeated");
 		villageIntroSeen = node.getBoolean("village_intro_seen");
 		swampIntroSeen = node.getBoolean("swamp_intro_seen");
+		orchardIntroSeen = node.getBoolean("orchard_intro_seen");
+		highlandIntroSeen = node.getBoolean("highland_intro_seen");
+		summitKeyFound = node.getBoolean("summit_key_found");
 	}
 }

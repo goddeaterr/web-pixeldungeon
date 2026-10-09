@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.FurTrader;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Herbalist;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Hunter;
@@ -67,7 +68,7 @@ import java.util.HashSet;
 
 /**
  * MOD (taiga town): floor 0, a snowy taiga village above the dungeon. The stairs up on floor 1 lead here
- * (see SewerLevel), the mine shaft here leads back down. Inside the palisade the village is safe: traders,
+ * (see SewerLevel); the mine shaft stays barred until the summit relic is recovered. Inside the palisade the village is safe: traders,
  * villagers and animals. Outside it, in the wild outskirts, wolves and snow hares roam.
  *
  * The level is hand made (MAP below) and has its own textures (taiga/*.png, drawn by mod/taiga_art.py).
@@ -200,6 +201,17 @@ public class TaigaTownLevel extends Level {
 		return MAP[cell / WIDTH].charAt(cell % WIDTH);
 	}
 
+	/** The firelit square is the starting point for new runs. */
+	public int startCell(){ return 56 + 15 * WIDTH; }
+
+	@Override public int exit(){
+		if (getClass() == TaigaTownLevel.class && !TaigaQuests.summitKeyFound){
+			LevelTransition trail = getTransition(LevelTransition.Type.BRANCH_EXIT);
+			if (trail != null) return trail.cell();
+		}
+		return super.exit();
+	}
+
 	private static int terrainOf( char c ){
 		switch (c){
 			case 'T': return Terrain.WALL;
@@ -294,10 +306,23 @@ public class TaigaTownLevel extends Level {
 
 	//coming up out of the mine, or back down the trail from the taiga
 	public String arrivalMessage(){
+		if (InterlevelScene.mode == InterlevelScene.Mode.DESCEND && Dungeon.depth == 0)
+			return Messages.get(TaigaTownLevel.class, "begin");
 		LevelTransition trail = getTransition( LevelTransition.Type.BRANCH_EXIT );
 		boolean fromTrail = trail != null && trail.type == LevelTransition.Type.BRANCH_EXIT
 				&& Dungeon.hero != null && trail.inside( Dungeon.hero.pos );
 		return Messages.get(TaigaTownLevel.class, fromTrail ? "arrive_trail" : "arrive");
+	}
+
+	@Override
+	public boolean activateTransition(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero,
+			LevelTransition transition){
+		if (getClass() == TaigaTownLevel.class && transition.type == LevelTransition.Type.REGULAR_EXIT
+				&& !TaigaQuests.summitKeyFound){
+			com.shatteredpixel.shatteredpixeldungeon.utils.GLog.w(Messages.get(TaigaTownLevel.class, "shaft_sealed"));
+			return false;
+		}
+		return super.activateTransition(hero, transition);
 	}
 
 	public static boolean inTown( int cell ){
@@ -512,12 +537,16 @@ public class TaigaTownLevel extends Level {
 
 	@Override
 	public String tileName( int tile ) {
+		if (getClass() == TaigaTownLevel.class && tile == Terrain.EXIT && !TaigaQuests.summitKeyFound)
+			return Messages.get(TaigaTownLevel.class, "sealed_shaft_name");
 		String name = taigaTileName(tile, false);
 		return name != null ? name : super.tileName(tile);
 	}
 
 	@Override
 	public String tileDesc( int tile ) {
+		if (getClass() == TaigaTownLevel.class && tile == Terrain.EXIT && !TaigaQuests.summitKeyFound)
+			return Messages.get(TaigaTownLevel.class, "sealed_shaft_desc");
 		String desc = taigaTileDesc(tile, false);
 		return desc != null ? desc : super.tileDesc(tile);
 	}

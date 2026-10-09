@@ -635,7 +635,7 @@ public class GameScene extends PixelScene {
 
 		if (InterlevelScene.mode != InterlevelScene.Mode.NONE) {
 			// MOD: (taiga floors have their own depths, see TaigaBranch)
-			if (Dungeon.depth == Statistics.deepestFloor && !TaigaBranch.active()
+			if (Dungeon.depth > 0 && Dungeon.depth == Statistics.deepestFloor && !TaigaBranch.active()
 					&& (InterlevelScene.mode == InterlevelScene.Mode.DESCEND || InterlevelScene.mode == InterlevelScene.Mode.FALL)) {
 				GLog.h(Messages.get(this, "descend"), Dungeon.depth);
 				Sample.INSTANCE.play(Assets.Sounds.DESCEND);

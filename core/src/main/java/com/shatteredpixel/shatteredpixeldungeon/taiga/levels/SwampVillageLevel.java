@@ -15,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.LastHearthMerchant;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.TownTrader;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Villager;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.Snowfall;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.effects.MireMist;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Music;
@@ -155,6 +156,7 @@ public class SwampVillageLevel extends TaigaTownLevel {
 		super.addVisuals();
 		Gravestones.add(visuals, this);
 		visuals.add(new Snowfall(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE, 2.5f));
+		visuals.add(new MireMist(width() * DungeonTilemap.SIZE, height() * DungeonTilemap.SIZE, 0.65f));
 		return visuals;
 	}
 
