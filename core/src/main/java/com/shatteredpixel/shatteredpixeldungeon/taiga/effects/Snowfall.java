@@ -30,10 +30,15 @@ import com.watabou.utils.Random;
 public class Snowfall extends Emitter {
 
 	public Snowfall( float width, float height ){
+		this( width, height, 1f );
+	}
+
+	//intensity 1: about one flake per 30 tiles per second; more is a blizzard (faster, windier flakes)
+	public Snowfall( float width, float height, float intensity ){
 		super();
 		pos( 0, -16, width, height );
-		//about one flake per 30 tiles per second
-		pour( Flake.FACTORY, 30f / Math.max(1f, (width * height) / 256f) );
+		pour( intensity > 1f ? Flake.BLIZZARD : Flake.FACTORY,
+				30f / Math.max(1f, (width * height) / 256f) / intensity );
 	}
 
 	public static class Flake extends PixelParticle {
@@ -47,6 +52,16 @@ public class Snowfall extends Emitter {
 			@Override
 			public boolean lightMode() {
 				return false;
+			}
+		};
+
+		public static final Factory BLIZZARD = new Factory() {
+			@Override
+			public void emit( Emitter emitter, int index, float x, float y ) {
+				Flake f = (Flake)emitter.recycle( Flake.class );
+				f.reset( x, y );
+				f.speed.set( Random.Float( 20f, 40f ), Random.Float( 18f, 30f ) );
+				f.left = f.lifespan = Random.Float( 1.5f, 3f );
 			}
 		};
 

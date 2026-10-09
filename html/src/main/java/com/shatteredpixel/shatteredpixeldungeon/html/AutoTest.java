@@ -180,6 +180,14 @@ public class AutoTest {
 			}
 		}
 
+		//rooted: moving fails without taking any time, so waiting is the only thing that lets time pass
+		if (hero.rooted && (target == null || bestDist > 1)){
+			last = "wait (rooted)";
+			actions++;
+			hero.rest(false);
+			return;
+		}
+
 		if (target != null && hero.HP <= hero.HT / 4){
 			//desperate: drink an unknown potion, healing is the most common one
 			Potion potion = hero.belongings.getItem(Potion.class);

@@ -80,6 +80,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaQuests;
 import com.watabou.noosa.Game;
 import com.watabou.utils.BArray;
 import com.watabou.utils.Bundlable;
@@ -278,6 +280,8 @@ public class Dungeon {
 		Wandmaker.Quest.reset();
 		Blacksmith.Quest.reset();
 		Imp.Quest.reset();
+		// MOD: quests of the taiga floors
+		TaigaQuests.reset();
 
 		hero = new Hero();
 		hero.live();
@@ -382,6 +386,9 @@ public class Dungeon {
 				default:
 					level = new DeadEndLevel();
 			}
+		} else if (branch == TaigaBranch.BRANCH) {
+			// MOD: the floors above the taiga village
+			level = TaigaBranch.newLevel(depth);
 		} else {
 			level = new DeadEndLevel();
 		}
@@ -675,6 +682,8 @@ public class Dungeon {
 			Wandmaker	.Quest.storeInBundle( quests );
 			Blacksmith	.Quest.storeInBundle( quests );
 			Imp			.Quest.storeInBundle( quests );
+			// MOD: quests of the taiga floors
+			TaigaQuests.storeInBundle( quests );
 			bundle.put( QUESTS, quests );
 			
 			SpecialRoom.storeRoomsInBundle( bundle );
@@ -781,11 +790,14 @@ public class Dungeon {
 				Wandmaker.Quest.restoreFromBundle( quests );
 				Blacksmith.Quest.restoreFromBundle( quests );
 				Imp.Quest.restoreFromBundle( quests );
+				// MOD: quests of the taiga floors
+				TaigaQuests.restoreFromBundle( quests );
 			} else {
 				Ghost.Quest.reset();
 				Wandmaker.Quest.reset();
 				Blacksmith.Quest.reset();
 				Imp.Quest.reset();
+				TaigaQuests.reset();
 			}
 			
 			SpecialRoom.restoreRoomsFromBundle(bundle);

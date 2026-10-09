@@ -17,15 +17,15 @@ LEGEND = {
 	'P': 'STATUE', 'S': 'STATUE_SP', 'L': 'BOOKSHELF', '_': 'EMPTY_SP', '=': 'EMPTY_SP', '+': 'DOOR',
 	'#': 'BARRICADE', '~': 'WATER', 'W': 'REGION_DECO', 'F': 'REGION_DECO_ALT', 'A': 'ALCHEMY', 'X': 'EXIT',
 	'g': 'EMPTY_SP', '$': 'EMPTY_SP', 'f': 'EMPTY_SP', 'h': 'EMPTY_SP', 'u': 'EMPTY_SP',
-	'v': 'EMPTY', 'd': 'EMPTY', 'r': 'EMPTY', 'w': 'EMPTY', 'b': 'EMPTY',
+	'v': 'EMPTY', 'd': 'EMPTY', 'r': 'EMPTY', 'w': 'EMPTY', 'b': 'EMPTY', 'o': 'EMPTY', 'U': 'ENTRANCE',
 }
 MARKERS = {'f': (200, 120, 40), 'h': (60, 160, 60), 'u': (40, 90, 50), 'v': (180, 60, 60), 'd': (120, 120, 140),
-		   'r': (140, 90, 50), 'w': (90, 90, 100), 'b': (240, 240, 240), '$': (255, 220, 0)}
+		   'r': (140, 90, 50), 'w': (90, 90, 100), 'b': (240, 240, 240), '$': (255, 220, 0), 'o': (110, 70, 40)}
 
 WALLISH = {'WALL', 'WALL_DECO', 'BOOKSHELF', None}
 DOORS = {'DOOR', 'OPEN_DOOR'}
 # DungeonTileSheet.waterStitcheable, for the terrains used here
-WATER_STITCH = {'EMPTY', 'GRASS', 'EXIT', 'HIGH_GRASS', 'EMPTY_DECO', 'STATUE', 'REGION_DECO', 'ALCHEMY',
+WATER_STITCH = {'EMPTY', 'GRASS', 'EXIT', 'ENTRANCE', 'HIGH_GRASS', 'EMPTY_DECO', 'STATUE', 'REGION_DECO', 'ALCHEMY',
 				'DOOR', 'OPEN_DOOR', 'BARRICADE'}
 
 
@@ -90,6 +90,8 @@ def render(scale=2, markers=True):
 				vis = alt(v, 4, (50, 10))
 			elif t == 'EXIT':
 				vis = 17
+			elif t == 'ENTRANCE':
+				vis = 16
 			elif t == 'WATER':
 				m = 0
 				for bit, (dx, dy) in ((1, (0, -1)), (2, (1, 0)), (4, (0, 1)), (8, (-1, 0))):

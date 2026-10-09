@@ -29,7 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.sprites.TaigaSprites;
 import com.watabou.utils.Random;
 
 //MOD (taiga town): prowls the outskirts of the village, never passes the palisade
-public class Wolf extends Mob {
+public class Wolf extends Mob implements TaigaBeast {
 
 	{
 		spriteClass = TaigaSprites.WolfSprite.class;

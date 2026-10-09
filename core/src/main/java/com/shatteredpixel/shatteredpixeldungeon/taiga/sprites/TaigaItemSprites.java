@@ -44,6 +44,19 @@ public class TaigaItemSprites {
 	public static int PINE_RESIN    = BASE + 4;
 	public static int FUR_CLOAK     = BASE + 5;
 	public static int MITTENS       = BASE + 6;
+	public static int FROST_JAVELIN = BASE + 7;
+	public static int TRAPPER_KNIFE = BASE + 8;
+	public static int BEARSKIN_COAT = BASE + 9;
+	public static int BEAR_CLAW     = BASE + 10;
+	public static int WOODCUTTER_AXE= BASE + 11;
+	public static int SPIRIT_STAFF  = BASE + 12;
+	public static int LESHY_CROOK   = BASE + 13;
+	public static int HEART_OF_TAIGA= BASE + 14;
+	public static int ELIXIR_STAG   = BASE + 15;
+	public static int ELIXIR_NORTH  = BASE + 16;
+	public static int ALPHA_FANG    = BASE + 17;
+	public static int BEAR_PELT     = BASE + 18;
+	public static int SABLE_PELT    = BASE + 19;
 
 	static {
 		rect(SMOKED_FISH, 15, 11);
@@ -53,6 +66,9 @@ public class TaigaItemSprites {
 		rect(PINE_RESIN,  10, 10);
 		rect(FUR_CLOAK,   15, 14);
 		rect(MITTENS,     14, 13);
+		for (int id = FROST_JAVELIN; id <= SABLE_PELT; id++){
+			rect(id, 16, 16);
+		}
 	}
 
 	private static void rect( int id, int w, int h ){

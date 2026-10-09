@@ -21,9 +21,14 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.taiga.sprites;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.IceWisp;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.SpruceTreant;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Villager;
+import com.watabou.noosa.audio.Sample;
 
 //MOD (taiga town): sprites of the village characters, rows of the sheets drawn by mod/taiga_art.py
 public class TaigaSprites {
@@ -89,6 +94,123 @@ public class TaigaSprites {
 		public SnowHareSprite(){
 			super();
 			setup( TaigaAssets.ANIMALS, 3, 3 );
+		}
+	}
+
+	// ---- the taiga floors (beasts.png, spirits.png, leshy.png) ----
+
+	public static class FrostWolfSprite extends TaigaMobSprite {
+		public FrostWolfSprite(){ super(); setup( TaigaAssets.BEASTS, 0, 3 ); }
+	}
+
+	public static class AlphaSprite extends TaigaMobSprite {
+		public AlphaSprite(){ super(); setup( TaigaAssets.BEASTS, 1, 3 ); }
+	}
+
+	public static class BoarSprite extends TaigaMobSprite {
+		public BoarSprite(){ super(); setup( TaigaAssets.BEASTS, 2, 3 ); }
+	}
+
+	public static class BearSprite extends TaigaMobSprite {
+		public BearSprite(){ super(); setup( TaigaAssets.BEASTS, 3, 2 ); }
+	}
+
+	public static class WhiteStagSprite extends TaigaMobSprite {
+		public WhiteStagSprite(){ super(); setup( TaigaAssets.BEASTS, 4, 2 ); }
+	}
+
+	public static class SableSprite extends TaigaMobSprite {
+		public SableSprite(){ super(); setup( TaigaAssets.BEASTS, 5, 4 ); }
+	}
+
+	public static class IceWispSprite extends TaigaMobSprite {
+		public IceWispSprite(){
+			super();
+			setup( TaigaAssets.SPIRITS, 0, 6 );
+			zap = attack.clone();
+		}
+
+		@Override
+		public void zap( int cell ) {
+			super.zap( cell );
+			MagicMissile.boltFromChar( parent, MagicMissile.FROST, this, cell,
+					() -> ((IceWisp) ch).onZapComplete() );
+			Sample.INSTANCE.play( Assets.Sounds.ZAP );
+		}
+
+		@Override
+		public void onComplete( Animation anim ) {
+			if (anim == zap) idle();
+			super.onComplete( anim );
+		}
+	}
+
+	public static class FrostbittenSprite extends TaigaMobSprite {
+		public FrostbittenSprite(){ super(); setup( TaigaAssets.SPIRITS, 1, 2 ); }
+	}
+
+	//looks like a plain spruce while it waits (frames of the next row)
+	public static class TreantSprite extends TaigaMobSprite {
+
+		private Animation disguise;
+
+		public TreantSprite(){
+			super();
+			setup( TaigaAssets.SPIRITS, 2, 2 );
+			disguise = new Animation( 1, true );
+			disguise.frames( frames, 3 * FRAMES_PER_ROW, 3 * FRAMES_PER_ROW, 3 * FRAMES_PER_ROW + 1 );
+		}
+
+		@Override
+		public void idle() {
+			if (ch instanceof SpruceTreant && ((SpruceTreant) ch).disguised()){
+				play( disguise );
+			} else {
+				super.idle();
+			}
+		}
+
+		@Override
+		public void linkVisuals( Char ch ) {
+			super.linkVisuals( ch );
+			if (ch instanceof SpruceTreant && ((SpruceTreant) ch).disguised()) play( disguise );
+		}
+	}
+
+	public static class TotemSprite extends TaigaMobSprite {
+		public TotemSprite(){ super(); setup( TaigaAssets.SPIRITS, 4, 3 ); }
+	}
+
+	public static class TrapperSprite extends TaigaMobSprite {
+		public TrapperSprite(){ super(); setup( TaigaAssets.SPIRITS, 5, 2 ); }
+	}
+
+	public static class ShamanSprite extends TaigaMobSprite {
+		public ShamanSprite(){ super(); setup( TaigaAssets.SPIRITS, 6, 3 ); }
+	}
+
+	//24x24 frames; frames 0-11 like the others, 12-14 raise the crook (cast)
+	public static class LeshySprite extends TaigaMobSprite {
+
+		private Animation cast;
+
+		public LeshySprite(){
+			super();
+			setup( TaigaAssets.LESHY, 0, 2, 24 );
+			cast = new Animation( 10, false );
+			cast.frames( frames, 12, 13, 14, 13, 12 );
+		}
+
+		public void cast(){
+			play( cast );
+		}
+
+		@Override
+		public void onComplete( Animation anim ) {
+			if (anim == cast) {
+				idle();
+			}
+			super.onComplete( anim );
 		}
 	}
 }

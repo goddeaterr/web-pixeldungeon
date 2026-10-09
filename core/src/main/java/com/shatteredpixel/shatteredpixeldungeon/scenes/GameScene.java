@@ -127,6 +127,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaTownLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.ControllerHandler;
@@ -625,7 +626,8 @@ public class GameScene extends PixelScene {
 		Camera.main.panTo(hero.center(), 2.5f);
 
 		if (InterlevelScene.mode != InterlevelScene.Mode.NONE) {
-			if (Dungeon.depth == Statistics.deepestFloor
+			// MOD: (taiga floors have their own depths, see TaigaBranch)
+			if (Dungeon.depth == Statistics.deepestFloor && !TaigaBranch.active()
 					&& (InterlevelScene.mode == InterlevelScene.Mode.DESCEND || InterlevelScene.mode == InterlevelScene.Mode.FALL)) {
 				GLog.h(Messages.get(this, "descend"), Dungeon.depth);
 				Sample.INSTANCE.play(Assets.Sounds.DESCEND);
@@ -660,7 +662,10 @@ public class GameScene extends PixelScene {
 				GLog.h(Messages.get(this, "resurrect"), Dungeon.depth);
 			} else if (Dungeon.level instanceof TaigaTownLevel) {
 				// MOD: arriving in the taiga village (floor 0)
-				GLog.h(Messages.get(TaigaTownLevel.class, "arrive"));
+				GLog.h(((TaigaTownLevel) Dungeon.level).arrivalMessage());
+			} else if (TaigaBranch.active()) {
+				// MOD: arriving on a taiga floor
+				TaigaBranch.announceArrival();
 			} else {
 				GLog.h(Messages.get(this, "return"), Dungeon.depth);
 			}

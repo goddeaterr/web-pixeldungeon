@@ -28,6 +28,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 public class TaigaAssets {
 
 	public static final String TILES            = "taiga/tiles.png";
+	//the taiga floors: like the village sheet, but their way down is a trail instead of the mine shaft
+	public static final String TILES_WILD       = "taiga/tiles_wild.png";
 	public static final String TERRAIN_FEATURES = "taiga/terrain_features.png";
 	public static final String RAISED_TERRAIN   = "taiga/raised_terrain.png";
 	public static final String WATER            = "taiga/water.png";
@@ -37,12 +39,15 @@ public class TaigaAssets {
 	public static final String VILLAGERS        = "taiga/villagers.png";
 	public static final String TRADERS          = "taiga/traders.png";
 	public static final String ANIMALS          = "taiga/animals.png";
+	public static final String BEASTS           = "taiga/beasts.png";
+	public static final String SPIRITS          = "taiga/spirits.png";
+	public static final String LESHY            = "taiga/leshy.png";
 
 	public static final String MESSAGES         = "taiga/messages/taiga";
 
 	//the terrain overlays pick their sheet by region, the village has its own versions of them
 	public static String forLevel( String asset ){
-		if (Dungeon.level instanceof TaigaTownLevel){
+		if (Dungeon.level instanceof TaigaTownLevel || TaigaBranch.active()){
 			if (asset.equals(Assets.Environment.TERRAIN_FEATURES)) return TERRAIN_FEATURES;
 			if (asset.equals(Assets.Environment.RAISED_TERRAIN))   return RAISED_TERRAIN;
 		}

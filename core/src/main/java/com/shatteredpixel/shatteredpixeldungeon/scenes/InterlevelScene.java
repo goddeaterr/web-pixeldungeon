@@ -50,6 +50,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.input.KeyEvent;
 import com.watabou.noosa.Camera;
@@ -100,6 +101,7 @@ public class InterlevelScene extends PixelScene {
 	public Image background;
 
 	private RenderedTextBlock loadingText;
+	private String modeText; // MOD: the loading text, see create()
 
 	private RenderedTextBlock storyMessage;
 	private ShadowBox storyBG;
@@ -165,7 +167,8 @@ public class InterlevelScene extends PixelScene {
 		}
 
 		//flush the texture cache whenever moving between regions, helps reduce memory load
-		int region = (int)Math.ceil(loadingDepth / 5f);
+		// MOD: the taiga village and the taiga floors use region 0, which shows the taiga picture
+		int region = TaigaBranch.taigaLoading(loadingDepth) ? 0 : (int)Math.ceil(loadingDepth / 5f);
 		if (region != lastRegion){
 			TextureCache.clear();
 			TitleBackground.reset();
@@ -271,7 +274,10 @@ public class InterlevelScene extends PixelScene {
 		im.scale.y = w;
 		add(im);
 
-		String text = Messages.get(Mode.class, mode.name());
+		// MOD: climbing the taiga is not "descending"
+		modeText = TaigaBranch.loadingText(mode);
+		if (modeText == null) modeText = Messages.get(Mode.class, mode.name());
+		String text = modeText;
 		
 		loadingText = PixelScene.renderTextBlock( text, 9 );
 		loadingText.setPos(
@@ -478,7 +484,7 @@ public class InterlevelScene extends PixelScene {
 		}
 
 		if (mode != Mode.FALL && dots != Math.ceil(waitingTime / ((2*fadeTime)/3f))) {
-			String text = Messages.get(Mode.class, mode.name());
+			String text = modeText; // MOD: see create()
 			dots = (int)Math.ceil(waitingTime / ((2*fadeTime)/3f))%3;
 			switch (dots){
 				case 1: default:

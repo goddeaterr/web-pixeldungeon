@@ -45,6 +45,14 @@ public class WebJS {
 	public static native void registerState(StateProvider p);
 
 	@JSFunctor
+	public interface Command extends JSObject {
+		String run(String command);
+	}
+
+	@JSBody(params = "c", script = "window.spd = window.spd || {}; window.spd.debug = c;")
+	public static native void registerDebug(Command c);
+
+	@JSFunctor
 	public interface Toggle extends JSObject {
 		void set(boolean on);
 	}

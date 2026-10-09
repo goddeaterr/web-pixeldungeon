@@ -12,6 +12,8 @@ def rgb(h, a=255):
 def grid(rows, pal, w=16, h=16, ox=0, oy=0):
 	img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 	for y, row in enumerate(rows):
+		if len(row) > w:
+			raise ValueError('row %d is %d wide (max %d): %r' % (y, len(row), w, row))
 		for x, ch in enumerate(row):
 			if ch in ('.', ' '):
 				continue

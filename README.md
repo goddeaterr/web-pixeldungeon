@@ -16,6 +16,7 @@ with an added **`html`** module: a browser build (libGDX + [TeaVM](https://teavm
 ## Contents
 
 - [Mod: the taiga village (floor 0)](#mod-the-taiga-village-floor-0)
+- [Mod: the Old Taiga (5 floors up)](#mod-the-old-taiga-5-floors-up)
 - [Quick start](#quick-start)
 - [Building](#building)
 - [Deploying to Vercel](#deploying-to-vercel)
@@ -40,9 +41,10 @@ and the mine shaft in the village leads back down. With the Amulet of Yendor the
 
   Goods are restocked every time the hero has reached a new deepest floor; prices follow the deepest floor
   (`TaigaTownLevel.price`, the same formula as the dungeon shops).
-- **Outside the palisade** (west and south of it) are the wild outskirts with an icy stream: **wolves** (drop wolf
-  pelts) and shy **snow hares** (run away, drop meat). They respawn slowly, never enter the village, and stop giving
-  experience after level 5-6.
+- **Outside the palisade** (west and south of it) are wide wild outskirts with an icy stream and a frozen lake:
+  **wolves** (drop wolf pelts), **wild boars** (charge at double speed) and shy **snow hares** (run away, drop meat).
+  They respawn slowly, never enter the village, and stop giving experience after level 5-6.
+- In the north-west of the outskirts the **Old Trail** climbs into the taiga (see below).
 - **New items:** smoked fish (half a meal), pine nut bread (a full meal), herbal tea (slow heal, cures chill/frost,
   a little food), wolf pelt (sells for 15 gold), pine resin (thrown: roots the target for 4 turns),
   fur cloak (tier 2 armor, 1 less strength), fur mittens (gloves that hit 1 harder).
@@ -65,17 +67,68 @@ The village layout is `mod/town_map.txt` (legend in `TaigaTownLevel.java`). Afte
 `python mod/map_to_java.py` (copies it into `TaigaTownLevel.MAP`) and `python mod/town_preview.py preview.png`
 (renders the village with the game's tile rules, without building the game).
 
+## Mod: the Old Taiga (5 floors up)
+
+The Old Trail leads from the village up into the taiga: five floors of their own, counted upwards (the menu shows
+`+1` … `+5`), ending with a boss. They are a separate dungeon branch (`TaigaBranch`, branch 4), so they have their
+own level files and seeds and never touch the dungeon's floors, statistics or item decks.
+
+The lore: since the dark energy began rising from Yendor's dungeon, winter in the taiga has never ended. Wolves grew
+bold, the frozen dead walk, the spirits of the hills turned sour, and the Leshy, lord of the forest, went mad with rage.
+Each floor greets the hero with a line about it; the quest givers tell the rest.
+
+| Floor | Name | Feel | Creatures |
+|---|---|---|---|
+| +1 | the Old Trail | glades and spruce groves | frost wolves, wild boars, snow hares |
+| +2 | the Deep Taiga | denser forest; **the old trapper's camp** | frost wolves, boars, ice wisps |
+| +3 | the Frozen Lakes | lakes and streams with bridges | frost wolves, ice wisps, frostbitten, brown bears |
+| +4 | the Shaman's Hills | snowy thickets; **the shaman's circle**, 3 corrupted totems | wisps, frostbitten, bears, spruce treants |
+| +5 | the Leshy's Grove | a great round grove of ancient spruces | **the Leshy** |
+
+Floors 1-4 are generated like dungeon floors (`TaigaLevel`, a `RegularLevel` with forest instead of walls and no
+doors between clearings), with about twice the rooms of a sewer floor, their own room types (glades, frozen ponds,
+juniper thickets, spruce groves), a hunter's cache with a chest on every floor, and taiga traps (chilling, darts,
+alarm, gripping, flock, teleportation). Loot comes from the default drop tables, never from the item decks.
+
+**Creatures:** frost wolf; wild boar (charges); ice wisp (flies, ice shards that chill); frostbitten (undead,
+chilling touch, rarely drops a woodcutter's axe); brown bear (sleeps deeply, hits hard, drops pelts, rarely a bear
+claw or bearskin coat); spruce treant (looks exactly like a spruce, even when examined, until you step next to it;
+roots what it hits). **Rare (1 in 40):** the white stag (drops an elixir of the stag) and the golden sable (drops a
+pelt worth 150 gold); both run from the hero.
+
+**Quests:**
+- *The old trapper* (+2) wants the **One-Eyed Alpha** dead. It appears on +3 once the quest is given, calls two
+  frost wolves when hurt, and drops its fang. Reward, one of: 3 frost javelins (chill), bearskin coat (tier 3 armor,
+  1 less strength), trapper's knife (+50% damage to beasts).
+- *The old shaman* (+4) wants the three **corrupted totems** of her floor broken (they keep calling ice wisps).
+  Reward, one of: spirit staff (tier 3, chills), 3 elixirs of the north (heal, no chill or freezing for 200 turns),
+  a scroll of upgrade.
+
+**The Leshy** (+5, 180 HP): the grove is sealed while he lives. He marks the ground around the hero and roots burst
+out of it a turn later (damage and rooting; bushes sprout where they burst), slips into one spruce and steps out of
+another, and calls two frost wolves at 3/4 health. At half health a blizzard starts, the two spruces nearest to the
+hero wake up as treants, the roots come faster, and he fells spruces along a marked line toward the hero. He drops
+**the Leshy's crook** (tier 4, reach 2, roots on hit) and **the Heart of the Taiga** (+10 maximum health for good).
+The pass north of the grove is snowed in for now: that's where the next region will start.
+
+Developer commands for testing, in debug builds only (`./gradlew html:distDebug -PwebDebug`), in the browser
+console: `spd.debug("goto 3 4")` (taiga floor 3; `goto 0 0` is the village), `spd.debug("reveal")`,
+`spd.debug("tough")`, `spd.debug("tp Trapper")`, `spd.debug("talk Shaman")`,
+`spd.debug("give taiga.items.AlphaFang")`. See `html/.../WebDebug.java`.
+
 Changes outside the `taiga` package, each marked `// MOD:` in the code:
 
 | File | Change |
 |---|---|
-| `Dungeon.newLevel` | depth 0 → `TaigaTownLevel` |
+| `Dungeon.newLevel` | depth 0 → `TaigaTownLevel`; the taiga branch → `TaigaBranch.newLevel` |
+| `Dungeon.init`, `saveGame`, `loadGame` | the taiga quests (`TaigaQuests`) are reset / saved / loaded with the dungeon's |
+| `ui/MenuPane` | taiga floors show their depth as `+1` … `+5` |
 | `levels/SewerLevel.activateTransition` | stairs up → the village; with the Amulet: choose ending or village |
 | `actors/mobs/npcs/Shopkeeper.sellPrice` | village prices |
 | `sprites/ItemSprite.frame` | village items are drawn from `taiga/items.png` |
 | `tiles/TerrainFeaturesTilemap`, `tiles/RaisedTerrainTilemap` | village versions of the overlay sheets |
-| `scenes/InterlevelScene` | loading picture for floor 0 |
-| `scenes/GameScene` | "You climb out of the mine..." message |
+| `scenes/InterlevelScene` | loading picture for the village and the taiga; "Climbing..." instead of "Descending..." |
+| `scenes/GameScene` | arrival messages for the village and the taiga floors |
 | `messages/Messages` | the `taiga/messages/taiga` bundle |
 
 ## Quick start
@@ -183,6 +236,7 @@ replaced in the `html` module (a class with the same name earlier on the classpa
 | `float` (`SPDStrictFloat`, `StrictFloat`) | float is computed as double, with no rounding to 32 bits | `(int)(0.7f*10)` = 6 instead of 7: damage, chances, etc. |
 | `Class.getModifiers()` (`ClassReflection`) | the `static` flag of nested classes is lost | `Bundle` silently dropped static nested classes from saves (rankings, many buffs, quests) |
 | `Object.wait()` (`TObject`) | an interrupted `wait()` doesn't re-acquire the monitor | crash on every window resize / phone rotation during a run |
+| `Object.wait()` (`TObject`) | an interrupted `wait()` leaves a live listener in the monitor's queue, which a later `notify()` wakes instead of the real waiter | a 4.5 second freeze on every scene change (stairs, alchemy, menus): `GameScene` waited for its timeout |
 | `Deflater`/`Inflater` | `Z_BUF_ERROR` is treated as an error | no save could be written |
 | `DecimalFormat`, `Formatter`, `DecimalFormatSymbols` | different rounding, `#.##` patterns, no locale data | numbers in the UI differed (12.34 vs 12.35, `.33` vs `0.33`, `1.5` instead of `1,5` in Russian) |
 | `SharedLibraryLoader` | no `os` field in the emulation | `DeviceCompat` didn't compile |
@@ -336,7 +390,7 @@ The `html` module:
 | `emu/com/badlogic/gdx/utils/SharedLibraryLoader` | emulation with the `os` field |
 | `emu/com/badlogic/gdx/utils/reflect/ClassReflection` | correct `isMemberClass`/`isStaticClass` for game classes |
 | `org/teavm/classlib/java/util/TRandom` | `java.util.Random` with the JDK algorithms |
-| `org/teavm/classlib/java/lang/TObject` | `wait()` re-acquires the monitor after an interrupt |
+| `org/teavm/classlib/java/lang/TObject` | `wait()` re-acquires the monitor after an interrupt, and its listener can't be woken again |
 | `org/teavm/classlib/java/util/zip/TDeflater`, `TInflater` | `Z_BUF_ERROR` is not an error |
 | `org/teavm/classlib/java/text/TDecimalFormat`, `TDecimalFormatSymbols`, `java/util/TFormatter` | number formatting as in the JDK |
 

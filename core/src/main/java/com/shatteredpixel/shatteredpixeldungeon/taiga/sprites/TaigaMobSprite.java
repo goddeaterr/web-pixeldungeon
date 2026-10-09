@@ -33,9 +33,15 @@ public abstract class TaigaMobSprite extends MobSprite {
 
 	public static final int FRAMES_PER_ROW = 12;
 
+	protected TextureFilm frames;
+
 	protected void setup( String sheet, int row, int idleFps ){
+		setup( sheet, row, idleFps, 16 );
+	}
+
+	protected void setup( String sheet, int row, int idleFps, int size ){
 		texture( sheet );
-		TextureFilm frames = new TextureFilm( texture, 16, 16 );
+		frames = new TextureFilm( texture, size, size );
 		int b = row * FRAMES_PER_ROW;
 
 		idle = new Animation( idleFps, true );

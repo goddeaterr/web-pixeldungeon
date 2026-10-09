@@ -30,7 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.sprites.TaigaSprites;
 import com.watabou.utils.Random;
 
 //MOD (taiga town): a shy white hare, runs from the hero and only bites when cornered
-public class SnowHare extends Mob {
+public class SnowHare extends Mob implements TaigaBeast {
 
 	{
 		spriteClass = TaigaSprites.SnowHareSprite.class;

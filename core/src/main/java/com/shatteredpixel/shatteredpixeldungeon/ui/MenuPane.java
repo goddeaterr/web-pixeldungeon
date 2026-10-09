@@ -38,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndKeyBindings;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndStory;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaBranch;
 import com.watabou.input.GameAction;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
@@ -88,7 +89,8 @@ public class MenuPane extends Component {
 		depthIcon = Icons.get(Dungeon.level.feeling);
 		add(depthIcon);
 
-		depthText = new BitmapText( Integer.toString( Dungeon.depth ), PixelScene.pixelFont);
+		// MOD: taiga floors count upwards ("+1")
+		depthText = new BitmapText( TaigaBranch.depthLabel(), PixelScene.pixelFont);
 		depthText.hardlight( 0xCACFC2 );
 		depthText.measure();
 		add( depthText );

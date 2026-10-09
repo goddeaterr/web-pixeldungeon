@@ -753,6 +753,43 @@ def cauldron():
 	return img
 
 
+def trail_up():
+	"""Stone steps cut into a snowy slope, leading up (the way up the mountain)."""
+	img = snow(16, 1)
+	for i, y in enumerate((11, 7, 3)):
+		w0, w1 = 3 + i, 12 - i
+		for x in range(w0, w1 + 1):
+			px(img, x, y, STONE[3])
+			px(img, x, y + 1, STONE[2])
+			px(img, x, y + 2, STONE[1])
+			px(img, x, y - 1, SNOW_HI)
+		px(img, w0, y + 1, STONE[0]); px(img, w1, y + 1, STONE[0])
+	# a trail marker: a post with a red ribbon
+	for y in range(2, 13):
+		px(img, 14, y, WOOD[3] if y % 3 else WOOD[2])
+	px(img, 13, 3, rgb(0xd83a3a)); px(img, 12, 4, rgb(0xb02828)); px(img, 13, 4, rgb(0xd83a3a))
+	px(img, 14, 1, SNOW_HI)
+	return img
+
+
+def trail_down():
+	"""The trail going down the slope, into the shade of the trees (the way back down)."""
+	img = snow(18, 1)
+	for y in range(16):
+		for x in range(16):
+			d = abs(x - 7.5)
+			if d < 3 + y * 0.2:
+				shade = [SNOW_SH, SNOW_SH, SNOW_SH2, SNOW_SH2, SNOW_DEEP][min(4, y // 4)]
+				px(img, x, y, shade)
+	for i, y in enumerate((3, 7, 11)):
+		for x in range(5 - i, 11 + i):
+			px(img, x, y, STONE[2] if y < 10 else STONE[1])
+			px(img, x, y + 1, STONE[0])
+	for x, y in ((6, 1), (9, 2), (6, 5), (9, 9), (6, 13)):
+		px(img, x, y, SNOW_DEEP)
+	return img
+
+
 # ---------------------------------------------------------------- the town tile sheet
 
 def build_tiles():
@@ -771,6 +808,7 @@ def build_tiles():
 	s.set(4, planks(4))
 	s.set(10, planks(10))
 	s.set(17, mine_exit())
+	s.set(16, trail_up())
 
 	# stream banks
 	for m in range(16):
@@ -889,12 +927,19 @@ if __name__ == '__main__':
 	os.makedirs(OUT, exist_ok=True)
 	tiles, bushes = build_tiles()
 	tiles.save(os.path.join(OUT, 'tiles.png'))
+	# the taiga floors: their way down is a trail, not the mine shaft
+	tiles.set(17, trail_down())
+	tiles.save(os.path.join(OUT, 'tiles_wild.png'))
 	build_features(bushes).save(os.path.join(OUT, 'terrain_features.png'))
 	build_raised(bushes).save(os.path.join(OUT, 'raised_terrain.png'))
 	water_texture().save(os.path.join(OUT, 'water.png'))
 
 	import taiga_sprites
-	taiga_sprites.items_sheet().save(os.path.join(OUT, 'items.png'))
+	import taiga_sprites2
+	taiga_sprites2.add_items(taiga_sprites.items_sheet()).save(os.path.join(OUT, 'items.png'))
+	taiga_sprites2.beasts_sheet().save(os.path.join(OUT, 'beasts.png'))
+	taiga_sprites2.spirits_sheet().save(os.path.join(OUT, 'spirits.png'))
+	taiga_sprites2.leshy_sheet().save(os.path.join(OUT, 'leshy.png'))
 	taiga_sprites.villagers_sheet().save(os.path.join(OUT, 'villagers.png'))
 	taiga_sprites.traders_sheet().save(os.path.join(OUT, 'traders.png'))
 	taiga_sprites.animals_sheet().save(os.path.join(OUT, 'animals.png'))

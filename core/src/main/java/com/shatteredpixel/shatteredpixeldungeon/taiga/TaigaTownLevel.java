@@ -42,6 +42,8 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Hunter;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Husky;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Reindeer;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.SnowHare;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.TaigaBeast;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.WildBoar;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.TownNPC;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.TownTrader;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.Villager;
@@ -83,50 +85,64 @@ public class TaigaTownLevel extends Level {
 	 *  T forest (wall)        . snow            , snow with twigs/tracks   " dry grass     % snowy shrubs
 	 *  P spruce (statue)      S festive spruce  L log wall (cabin)         _ plank floor   + door
 	 *  # palisade             g gate            ~ icy stream               = bridge        W woodpile
-	 *  F campfire             A cauldron        X mine shaft down to floor 1
+	 *  F campfire             A cauldron        X mine shaft down to floor 1    U the Old Trail up the mountain
 	 *  f/h/u fur trader, herbalist, hunter   $ their stalls   v villager   d husky   r reindeer
-	 *  w wolf   b snow hare
+	 *  w wolf   b snow hare   o wild boar
 	 */
 	//MAP-BEGIN (generated from mod/town_map.txt)
 	public static final String[] MAP = {
-			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-			"TTTTTTTTT~TTTTTTT#TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-			"TTT..TP\".~~...TT.#.T...........TTTTTTTT.....TT",
-			"TTT\"%....~~....P\"#.P......%.W.X.W.%........TTT",
-			"TT.......~~.\"...\"#.........,...............TTT",
-			"TT.T..%..~~.b..\".#.LLLLLLLLL.....LLLLLLLLLPTTT",
-			"TTT......~~.\".\"..#.L$$$f$$$L.....L$$$h$$$L..TT",
-			"TTTT.....~~.%.%,.#.L_______L.....L_______L..TT",
-			"TT...\".,.\"~~.....#.L_______L..,..LA______L.TTT",
-			"TTT...w..\"~~.....#.LLLL+LLLL.....LLLL+LLLL..TT",
-			"TT.T.P....~~...,.#.......W....S.....,..W....TT",
-			"TTTPP%.%%.~~..%\".#......,.............r....TTT",
-			"TT.T....\".~~.,..%#.P....v.......W.........PTTT",
-			"TTT.\"....P~~.%...#....,.......F.......,.....TT",
-			"TTTT.....===....\"g..................v.......TT",
-			"TTT.......~~,%%P.#.....v...,.....d..........TT",
-			"TT.%.%..\".~~\"..,.#.P.........v...,........P.TT",
-			"TT.....,..~~..%..#...,.....................TTT",
-			"TT........~~.P...#.P.............LLLLLLLLL..TT",
-			"TT..\"b.P\".~~.....#.LLLLL.....,...L$$$u$$$LP.TT",
-			"TTTP....\"\"P~~....#.L___L.LLLLL...L_______L.TTT",
-			"TTTT.......~~.%\".#.L___L.L___L...L______WL.TTT",
-			"TTT\".......~~...%#.LL+LL.L___L...LLLL+LLLL.TTT",
-			"TT..%..\"\"..~~w...#.......LL+LL.............TTT",
-			"TTT.%...%,.~~,%%,#..W.....P........W.....P.TTT",
-			"TTT....P.%\"~~\"P.P#.........................TTT",
-			"TT..%.\"....~~...P##############g###########TTT",
-			"TTTT%\"%%,.,~~\"%%.%P.P....%..%.P...P........TTT",
-			"TTTT.......~~.\",...%%\".\"...\"..........wP.%.TTT",
-			"TTTT.P%P\"..~~....P.....%w.P.%......\"P.%...TTTT",
-			"TTT%.%.\"\".\"~~~~~~~~~~~~~~~~~~~~=~~~~~~~~~~~TTT",
-			"TTT..\"%P%..~~~~~~~~~~~~~~~~~~~~=~~~~~~~~~~~~TT",
-			"TTT.,P%%.%..\"%...%.\"....%.%........b.\"......TT",
-			"TTT%..%\".%%%%T..TTT\"TT.T\".P..TT..%...T.....TTT",
-			"TTTT.TT...T.TT..T.TTTTT.TTTT.TTTTTTT.TTTTTTTTT",
-			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+			"TT..TTT.T..T..\"TT.T.T..TTTTTTTTTT~TTTTTTT#TTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+			"TTT...T...%\".T.,.\"T..TTT.TT..TP\".~~...TT.#.T...........TTTTTTTT.....TT",
+			"TTT...U...%..P%,%\"P%.......\"%....~~....P\"#.P......%.W.X.W.%........TTT",
+			"TTT.W...P.\"......\"....%.%........~~.\"...\"#.........,...............TTT",
+			"TTT......,....%.%\",....%..%T..%..~~.b..\".#.LLLLLLLLL.....LLLLLLLLLPTTT",
+			"TTP.............%,..P\"P%..T......~~.\".\"..#.L$$$f$$$L.....L$$$h$$$L..TT",
+			"TTT.......P..%.........TTP.T.....~~.%.%,.#.L_______L.....L_______L..TT",
+			"TT..,...\"......%..%\"....T....\".,.\"~~.....#.L_______L..,..LA______L.TTT",
+			"TTT.\"\"\"......T%P%.............w..\"~~.....#.LLLL+LLLL.....LLLL+LLLL..TT",
+			"TTTT.....\".P.TT\".T....%%%..T.P....~~...,.#.......W....S.....,..W....TT",
+			"TTPTP..........TT..%%...o\".PP%.%%.~~..%\".#......,.............r....TTT",
+			"TTT.w..%...\"P%..PP%\"\"......T....\".~~.,..%#.P....v.......W.........PTTT",
+			"TTT,.\".b\"...........\"...o...\"....P~~.%...#....,.......F.......,.....TT",
+			"TTT\"..%......%.\"..%.....\"T.T.....===....\"g..................v.......TT",
+			"TTT...P,....P.,P...P..P%.\"........~~,%%P.#.....v...,.....d..........TT",
+			"TTT..%..P\"........\"\"\"\".%..P%.%..\".~~\"..,.#.P.........v...,........P.TT",
+			"TTT.%......%%\"..,.....%,.\".....,..~~..%..#...,.....................TTT",
+			"TT\".P\"..%....,.\"...\"....,.........~~.P...#.P.............LLLLLLLLL..TT",
+			"TTT%.....P........T...\".\".\".\"b.P\".~~.....#.LLLLL.....,...L$$$u$$$LP.TT",
+			"TT%\".........,P.,\".TPT,.\"..P....\"\"P~~....#.L___L.LLLLL...L_______L.TTT",
+			"TTPT.P..b.........TT.T.....T.......~~.%\".#.L___L.L___L...L______WL.TTT",
+			"TTT....%.%.......TT\"T%...,.\".......~~...%#.LL+LL.L___L...LLLL+LLLL.TTT",
+			"TTTTT%T\"%.P....TTTT..P.\".%\".%..\"\"..~~w...#.......LL+LL.............TTT",
+			"TT.T...%..%......TT.T...P...%...%,.~~,%%,#..W.....P........W.....P.TTT",
+			"TT\".TT.,,..TP\"...TT.TT....%....P.%\"~~\"P.P#.........................TTT",
+			"TT......\".TT.....T\"\"%T......%.\"....~~...P##############g###########TTT",
+			"TT...%.,.T%P\"\"......%%%....T%\"%%,.,~~\"%%.%P.P....%..%.P...P........TTT",
+			"TT.,..P...%.P,.T..T\"%......T.......~~.\",...%%\".\"...\"..........wP.%.TTT",
+			"TTT........T.T..TTT.%..P...T.P%P\"..~~....P.....%w.P.%......\"P.%...TTTT",
+			"TT..,.....\"\"TT,\".\"T..%.\"...%.%.\"\".\"~~~~~~~~~~~~~~~~~~~~=~~~~~~~~~~~TTT",
+			"TTTT%.,...,..T.....\"P.....%..\"%P%..~~~~~~~~~~~~~~~~~~~~=~~~~~~~~~~~~TT",
+			"TT.T..\".\"...\".b,...P...,..,.,P%%.%..\"%...%.\"....%.%........b.\"......TT",
+			"TT.%...\"..,...........P.\"..%..%\".%%%%T..TTT\"TT.T\".P..TT..%...T.....TTT",
+			"TT.T......,.\"....TTP%P....%.\"....~~...%....w.......P%\".%..\"\"...\"%..TTT",
+			"TTT%.,..%%.\".%TT..%%P.\".,%.,.....~~..%.%....,........%.P.w,....,w\"TTTT",
+			"TTT.......~~~~~~~TT~~~~~~=~~~~~~~~~%....%PP....\"..,,\".%b\"........P.TTT",
+			"TTTT...~~~~~~~~~~~~~~~~~~=~~~~~~~~~\"........%.P,..\".\".\".%...P...\"...TT",
+			"TT.T.,~~~~~~~~~~~~~~~...\"...%,%.,.\"....%\"..\"......%.P..\".%.\"P.\"...T,TT",
+			"TT.P.~~~~~~~~~~~~~~~~~.P.....w..\".......%...\"..%.%....PPP.........%TTT",
+			"TTT..~~~~~~~,P,~~~~~~~...........b..%.\".........,.,.....P...P....,..TT",
+			"TT...~~~~~~~~~~~~~~~~~P.......%....,...P,........\"%\".P%.%.\",\".....T.TT",
+			"TT..T.~~~~~~~~~~~~~~~....%\".,....\"......\"\"\".%.%..\"%.P%....%,.......TTT",
+			"TTT.TT.~~~~~~~~~~~~~.%.\"..%.\".\".%........\".\".\".\"......P.......\"..wTTTT",
+			"TTTTT....P~~~~~~~\"..........%P.%...%\"......,P........\"%..\"..\"...P.T.TT",
+			"TTT..%..P........,..\"...,.,%.\"....P.,......%...\".\"o.,........%...PTTTT",
+			"TT.T..\".........P...............P,...%.,\"\"......P...........,....P\"TTT",
+			"TT...,....\".T\"%TT%.%TT,.T.TT,T...TT\"TTT...PT%T...\"..TP.T..T.TTPT..TTTT",
+			"TT.TT.TTT%T..T\".TTTT,TTT.%.T.TTT.TTT.TT...TTTTTTTT%.,T..T.T...TT.T.\"TT",
+			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+			"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
 	};
 	//MAP-END
 
@@ -201,6 +217,7 @@ public class TaigaTownLevel extends Level {
 			case 'F': return Terrain.REGION_DECO_ALT;
 			case 'A': return Terrain.ALCHEMY;
 			case 'X': return Terrain.EXIT;
+			case 'U': return Terrain.ENTRANCE;
 			case '_': case '=': case 'g': case '$': case 'f': case 'h': case 'u':
 				return Terrain.EMPTY_SP;
 			default:
@@ -212,12 +229,21 @@ public class TaigaTownLevel extends Level {
 	protected boolean build() {
 		setSize(WIDTH, HEIGHT);
 
+		int trail = -1;
 		for (int i = 0; i < length(); i++){
 			char c = mapChar(i);
 			map[i] = terrainOf(c);
 			if (c == 'X'){
-				transitions.add(new LevelTransition(this, i, LevelTransition.Type.REGULAR_EXIT));
+				//first: arrivals without a destination (the stairs from floor 1) come out of the mine
+				transitions.add(0, new LevelTransition(this, i, LevelTransition.Type.REGULAR_EXIT));
+			} else if (c == 'U'){
+				trail = i;
 			}
+		}
+		//the Old Trail up to the taiga floors (TaigaBranch)
+		if (trail != -1){
+			transitions.add(new LevelTransition(this, trail, LevelTransition.Type.BRANCH_EXIT,
+					1, TaigaBranch.BRANCH, LevelTransition.Type.BRANCH_ENTRANCE));
 		}
 
 		//it's the hero's home village, the layout is known from the start
@@ -266,6 +292,14 @@ public class TaigaTownLevel extends Level {
 		}
 	}
 
+	//coming up out of the mine, or back down the trail from the taiga
+	public String arrivalMessage(){
+		LevelTransition trail = getTransition( LevelTransition.Type.BRANCH_EXIT );
+		boolean fromTrail = trail != null && trail.type == LevelTransition.Type.BRANCH_EXIT
+				&& Dungeon.hero != null && trail.inside( Dungeon.hero.pos );
+		return Messages.get(TaigaTownLevel.class, fromTrail ? "arrive_trail" : "arrive");
+	}
+
 	public static boolean inTown( int cell ){
 		buildZones();
 		return cell >= 0 && cell < townZone.length && townZone[cell];
@@ -281,7 +315,7 @@ public class TaigaTownLevel extends Level {
 		if (!(Dungeon.level instanceof TaigaTownLevel)) return null;
 		buildZones();
 		if (ch instanceof TownNPC || ch instanceof TownTrader) return wildZone;
-		if (ch instanceof Wolf || ch instanceof SnowHare) return townZone;
+		if (ch instanceof TaigaBeast) return townZone;
 		return null;
 	}
 
@@ -325,7 +359,7 @@ public class TaigaTownLevel extends Level {
 		if (ch instanceof TownNPC){
 			int cell = randomCell(true, ch, false);
 			if (cell != -1) return cell;
-		} else if (ch instanceof Wolf || ch instanceof SnowHare){
+		} else if (ch instanceof TaigaBeast){
 			int cell = randomCell(false, ch, false);
 			if (cell != -1) return cell;
 		}
@@ -339,12 +373,16 @@ public class TaigaTownLevel extends Level {
 
 	@Override
 	public int mobLimit() {
-		return 5;
+		return 9;
 	}
 
 	@Override
 	public Mob createMob() {
-		return Random.Int(3) == 0 ? new SnowHare() : new Wolf();
+		switch (Random.Int(6)){
+			case 0: case 1: return new SnowHare();
+			case 2:         return new WildBoar();
+			default:        return new Wolf();
+		}
 	}
 
 	@Override
@@ -367,6 +405,7 @@ public class TaigaTownLevel extends Level {
 				case 'r': mob = new Reindeer(); break;
 				case 'w': mob = new Wolf(); break;
 				case 'b': mob = new SnowHare(); break;
+				case 'o': mob = new WildBoar(); break;
 			}
 			if (mob != null){
 				mob.pos = i;
@@ -470,6 +509,18 @@ public class TaigaTownLevel extends Level {
 
 	@Override
 	public String tileName( int tile ) {
+		String name = taigaTileName(tile, false);
+		return name != null ? name : super.tileName(tile);
+	}
+
+	@Override
+	public String tileDesc( int tile ) {
+		String desc = taigaTileDesc(tile, false);
+		return desc != null ? desc : super.tileDesc(tile);
+	}
+
+	//names of the taiga terrain, for the village and the taiga floors (wild = true), null for the default
+	public static String taigaTileName( int tile, boolean wild ) {
 		switch (tile){
 			case Terrain.WALL: case Terrain.WALL_DECO:
 				return Messages.get(TaigaTownLevel.class, "forest_name");
@@ -497,17 +548,18 @@ public class TaigaTownLevel extends Level {
 				return Messages.get(TaigaTownLevel.class, "trampled_name");
 			case Terrain.EMPTY_SP:
 				return Messages.get(TaigaTownLevel.class, "planks_name");
+			case Terrain.ENTRANCE:
+				return Messages.get(TaigaTownLevel.class, "trail_up_name");
 			case Terrain.EXIT:
-				return Messages.get(TaigaTownLevel.class, "shaft_name");
+				return Messages.get(TaigaTownLevel.class, wild ? "trail_down_name" : "shaft_name");
 			case Terrain.ALCHEMY:
 				return Messages.get(TaigaTownLevel.class, "cauldron_name");
 			default:
-				return super.tileName( tile );
+				return null;
 		}
 	}
 
-	@Override
-	public String tileDesc( int tile ) {
+	public static String taigaTileDesc( int tile, boolean wild ) {
 		switch (tile){
 			case Terrain.WALL: case Terrain.WALL_DECO:
 				return Messages.get(TaigaTownLevel.class, "forest_desc");
@@ -531,12 +583,14 @@ public class TaigaTownLevel extends Level {
 				return Messages.get(TaigaTownLevel.class, "grass_desc");
 			case Terrain.HIGH_GRASS:
 				return Messages.get(TaigaTownLevel.class, "shrubs_desc");
+			case Terrain.ENTRANCE:
+				return Messages.get(TaigaTownLevel.class, "trail_up_desc");
 			case Terrain.EXIT:
-				return Messages.get(TaigaTownLevel.class, "shaft_desc");
+				return Messages.get(TaigaTownLevel.class, wild ? "trail_down_desc" : "shaft_desc");
 			case Terrain.ALCHEMY:
 				return Messages.get(TaigaTownLevel.class, "cauldron_desc");
 			default:
-				return super.tileDesc( tile );
+				return null;
 		}
 	}
 
