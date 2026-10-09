@@ -552,6 +552,10 @@ public class TObject {
                 return;
             }
             performed = true;
+            // WEB-PORT: the listener stays in the monitor's queue; without this a later notify() would pick
+            // it instead of a thread that is really waiting (e.g. GameScene waiting for the actor thread when
+            // the scene changes), which then sleeps until its timeout (4.5 seconds on every staircase)
+            expired = true;
             if (timerId >= 0) {
                 if (PlatformDetector.isLowLevel() || PlatformDetector.isWebAssemblyGC()) {
                     EventQueue.kill(timerId);
