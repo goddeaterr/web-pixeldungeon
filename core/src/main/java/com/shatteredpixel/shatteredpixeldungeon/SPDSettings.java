@@ -356,6 +356,15 @@ public class SPDSettings extends GameSettings {
 		return getBoolean(KEY_WIFI, true);
 	}
 
+	//Temporary playtesting switches, available on existing saves and off by default.
+	private static final String KEY_DEV_HEALTH = "dev_infinite_health";
+	private static final String KEY_DEV_DAMAGE = "dev_infinite_damage";
+
+	public static void devInfiniteHealth(boolean value){ put(KEY_DEV_HEALTH, value); }
+	public static boolean devInfiniteHealth(){ return getBoolean(KEY_DEV_HEALTH, false); }
+	public static void devInfiniteDamage(boolean value){ put(KEY_DEV_DAMAGE, value); }
+	public static boolean devInfiniteDamage(){ return getBoolean(KEY_DEV_DAMAGE, false); }
+
 	public static void newsLastRead(long lastRead){
 		put(KEY_NEWS_LAST_READ, lastRead);
 	}

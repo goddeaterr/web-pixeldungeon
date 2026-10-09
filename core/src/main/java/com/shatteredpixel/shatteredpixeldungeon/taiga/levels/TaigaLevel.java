@@ -226,20 +226,21 @@ public class TaigaLevel extends RegularLevel {
 		return Generator.randomUsingDefaults( LOOT[Random.chances(LOOT_CHANCES)] );
 	}
 
-	//the taiga is generous: far more loot than a dungeon floor (3-5 items), and every floor has
-	// a potion of strength and at least one scroll of upgrade, so better gear can actually be used
+	//Keep each floor rewarding without burying the guaranteed upgrades in random gear.
 	@Override
 	protected void createItems() {
-		int items = 14 + Random.Int(5);
+		int items = 8 + Random.Int(4);
 		for (int i = 0; i < items; i++){
 			dropLoot( randomLoot() );
 		}
 		dropLoot( new PotionOfStrength() );
 		dropLoot( new ScrollOfUpgrade() );
-		if (Random.Int(2) == 0) dropLoot( new ScrollOfUpgrade() );
-		dropLoot( new PotionOfHealing() );
-		dropLoot( Random.Int(2) == 0 ? new SmokedFish() : new Berry().quantity(2) );
-		dropLoot( new PineNutBread() );
+		if (Random.Int(2) == 0) dropLoot( new PotionOfHealing() );
+		switch (Random.Int(3)) {
+			case 0: dropLoot(new SmokedFish()); break;
+			case 1: dropLoot(new Berry().quantity(2)); break;
+			default: dropLoot(new PineNutBread()); break;
+		}
 	}
 
 	private void dropLoot( Item item ){

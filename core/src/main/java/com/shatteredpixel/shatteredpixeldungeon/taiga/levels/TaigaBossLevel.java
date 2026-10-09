@@ -193,7 +193,7 @@ public class TaigaBossLevel extends Level {
 		drop(new ScrollOfUpgrade(), CX + (H - 7) * W);
 		drop(new PotionOfHealing(), CX + (H - 8) * W);
 		int placed = 0;
-		for (int tries = 0; tries < 500 && placed < 12; tries++){
+		for (int tries = 0; tries < 500 && placed < 6; tries++){
 			int x = CX + Random.IntRange(-R + 2, R - 2);
 			int y = CY + Random.IntRange(-R + 2, R - 2);
 			int cell = x + y * W;

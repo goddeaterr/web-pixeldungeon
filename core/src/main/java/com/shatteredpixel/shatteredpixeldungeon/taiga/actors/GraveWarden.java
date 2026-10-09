@@ -32,7 +32,7 @@ public class GraveWarden extends Mob {
 
 	{
 		spriteClass = SwampSprites.WardenSprite.class;
-		HP = HT = 110;
+		HP = HT = 125;
 		defenseSkill = 15;
 		EXP = 35;
 		maxLvl = 30;
@@ -41,7 +41,7 @@ public class GraveWarden extends Mob {
 		properties.add(Property.UNDEAD);
 	}
 
-	@Override public int damageRoll() { return Random.NormalIntRange(5, 10); }
+	@Override public int damageRoll() { return Random.NormalIntRange(6, 11); }
 	@Override public int attackSkill(Char target) { return 19; }
 	@Override public int drRoll() { return super.drRoll() + Random.NormalIntRange(2, 5); }
 

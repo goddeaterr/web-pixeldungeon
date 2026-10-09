@@ -93,9 +93,10 @@ Each floor greets the hero with a line about it; the quest givers tell the rest.
 Floors 1-4 are generated like dungeon floors (`TaigaLevel`, a `RegularLevel` with forest instead of walls and no
 doors between clearings), with about twice the rooms of a sewer floor, their own room types (glades, frozen ponds,
 juniper thickets, spruce groves), two hunter's caches with chests on each floor, and taiga traps (chilling, darts,
-alarm, gripping, flock, teleportation). Each of floors +1 through +4 has 14-18 random drops,
-two hunter's caches, a guaranteed potion of strength and scroll of upgrade, and extra food and healing.
-The grove on +5 has 12 random drops plus strength, upgrade, and healing supplies on the approach.
+alarm, gripping, flock, teleportation). Each of floors +1 through +4 has 8-11 random drops,
+two hunter's caches with one or two items each, a guaranteed potion of strength and scroll of upgrade,
+one food drop, and a 50% chance of a healing potion.
+The grove on +5 has 6 random drops plus strength, upgrade, and healing supplies on the approach.
 Loot comes from the default drop tables, never from the item decks.
 
 **Creatures:** frost wolf; wild boar (charges); ice wisp (flies, ice shards that chill); frostbitten (undead,
@@ -123,10 +124,14 @@ The Last Hearth has an uneven flooded street, a full dungeon-style shopkeeper wi
 and an herbalist. Floors +7 to +9 use their own peat, shale, timber and blackwater tile sheets, three swamp room
 shapes, three original enemies, and swamp-specific drops. The Grave Warden has a flooded bell arena, two waves of
 mire husks, and a warned bell strike that can be dodged by moving. It drops its own spade when defeated.
+Floors +7 to +9 place 5-7 swamp items plus their guaranteed strength, upgrade, and healing supplies.
 
 The intended ascent is 25 floors across five biomes. Floors +11 through +25 are still to be built; the planned
 sequence is an ash moor with dying roots, a bare grey highland where even the snow falls silent, and a lifeless summit.
 Each biome change will reveal another part of how the dungeon's corruption reached the surface.
+
+For exploration on an existing save, Settings → Connectivity → Dev mode (testing) has separate Infinite health
+and Infinite damage switches. Both are off by default and persist as settings until turned off.
 
 Developer commands for testing, in debug builds only (`./gradlew html:distDebug -PwebDebug`), in the browser
 console: `spd.debug("goto 8 4")` (swamp floor +8; `goto 0 0` is the first village), `spd.debug("reveal")`,

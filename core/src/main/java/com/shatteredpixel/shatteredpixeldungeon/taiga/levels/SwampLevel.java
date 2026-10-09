@@ -109,7 +109,7 @@ public class SwampLevel extends TaigaLevel {
 	}
 
 	@Override
-	public int mobLimit(){ return 7 + (Dungeon.depth - 7) * 2; }
+	public int mobLimit(){ return 8 + (Dungeon.depth - 7) * 2; }
 
 	@Override
 	public Mob createMob(){
@@ -122,7 +122,7 @@ public class SwampLevel extends TaigaLevel {
 
 	@Override
 	protected void createItems(){
-		for (int i = 0; i < 7 + Random.Int(4); i++){
+		for (int i = 0; i < 5 + Random.Int(3); i++){
 			Item item = Random.Int(12) == 0 ? new FuneralLantern()
 					: Random.Int(3) == 0 ? new GraveSalt() : new MireRoot();
 			dropSwampLoot(item);

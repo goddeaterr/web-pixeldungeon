@@ -509,6 +509,7 @@ public class Hero extends Char {
 
 	@Override
 	public int attackSkill( Char target ) {
+		if (SPDSettings.devInfiniteDamage()) return Char.INFINITE_ACCURACY;
 		KindOfWeapon wep = belongings.attackingWeapon();
 		
 		float accuracy = 1;
@@ -1579,6 +1580,9 @@ public class Hero extends Char {
 		default:
 		}
 		
+		if (SPDSettings.devInfiniteDamage() && enemy.alignment == Alignment.ENEMY) {
+			return Math.max(damage, 100_000);
+		}
 		return damage;
 	}
 	
@@ -1626,6 +1630,10 @@ public class Hero extends Char {
 
 	@Override
 	public void damage( int dmg, Object src ) {
+		if (SPDSettings.devInfiniteHealth()) {
+			HP = HT;
+			return;
+		}
 		if (buff(TimekeepersHourglass.timeStasis.class) != null
 				|| buff(TimeStasis.class) != null) {
 			return;
@@ -2169,6 +2177,10 @@ public class Hero extends Char {
 
 	@Override
 	public void die( Object cause ) {
+		if (SPDSettings.devInfiniteHealth()) {
+			HP = HT;
+			return;
+		}
 		
 		curAction = null;
 

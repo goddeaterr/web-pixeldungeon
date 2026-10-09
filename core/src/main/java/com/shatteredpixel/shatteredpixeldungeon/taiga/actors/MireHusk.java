@@ -17,7 +17,7 @@ public class MireHusk extends Mob {
 		EXP = 7;
 		maxLvl = 15;
 		loot = MireRoot.class;
-		lootChance = 0.35f;
+		lootChance = 0.20f;
 		properties.add(Property.UNDEAD);
 	}
 	@Override public int damageRoll() { return Random.NormalIntRange(4, 9); }

@@ -285,8 +285,7 @@ public class TaigaRooms {
 			Point c = center();
 			Heap chest = level.drop( TaigaLevel.randomLoot(), level.pointToCell(c) );
 			chest.type = Heap.Type.CHEST;
-			chest.drop( TaigaLevel.randomLoot() );
-			chest.drop( TaigaLevel.randomLoot() );
+			if (Random.Int(2) == 0) chest.drop( TaigaLevel.randomLoot() );
 
 			Painter.set( level, left + 1, top + 1, Terrain.REGION_DECO );
 			Painter.set( level, right - 1, top + 1, Terrain.REGION_DECO );

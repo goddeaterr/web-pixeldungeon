@@ -782,6 +782,10 @@ public class WndSettings extends WndTabbed {
 		CheckBox chkUpdates;
 		CheckBox chkBetas;
 		CheckBox chkWifi;
+		RenderedTextBlock devTitle;
+		ColorBlock sep2;
+		CheckBox chkDevHealth;
+		CheckBox chkDevDamage;
 
 		@Override
 		protected void createChildren() {
@@ -840,6 +844,28 @@ public class WndSettings extends WndTabbed {
 				chkWifi.checked(SPDSettings.WiFi());
 				add(chkWifi);
 			}
+
+			sep2 = new ColorBlock(1, 1, 0xFF000000);
+			add(sep2);
+			devTitle = PixelScene.renderTextBlock(Messages.get(this, "dev_title"), 9);
+			devTitle.hardlight(TITLE_COLOR);
+			add(devTitle);
+			chkDevHealth = new CheckBox(Messages.get(this, "dev_health")) {
+				@Override protected void onClick() {
+					super.onClick();
+					SPDSettings.devInfiniteHealth(checked());
+				}
+			};
+			chkDevHealth.checked(SPDSettings.devInfiniteHealth());
+			add(chkDevHealth);
+			chkDevDamage = new CheckBox(Messages.get(this, "dev_damage")) {
+				@Override protected void onClick() {
+					super.onClick();
+					SPDSettings.devInfiniteDamage(checked());
+				}
+			};
+			chkDevDamage.checked(SPDSettings.devInfiniteDamage());
+			add(chkDevDamage);
 		}
 
 		@Override
@@ -872,7 +898,12 @@ public class WndSettings extends WndTabbed {
 				pos = chkWifi.bottom();
 			}
 
-			height = pos;
+			sep2.size(width, 1);
+			sep2.y = pos + 3*GAP;
+			devTitle.setPos((width - devTitle.width())/2, sep2.y + 3*GAP);
+			chkDevHealth.setRect(0, devTitle.bottom() + GAP, width, BTN_HEIGHT);
+			chkDevDamage.setRect(0, chkDevHealth.bottom() + GAP, width, BTN_HEIGHT);
+			height = chkDevDamage.bottom();
 
 		}
 	}
