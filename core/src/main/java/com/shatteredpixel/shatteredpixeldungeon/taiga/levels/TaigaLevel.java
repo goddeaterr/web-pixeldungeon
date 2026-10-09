@@ -28,6 +28,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Berry;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.items.PineNutBread;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -108,6 +112,7 @@ public class TaigaLevel extends RegularLevel {
 		}
 
 		rooms.add( new TaigaRooms.HuntersCacheRoom() );
+		rooms.add( new TaigaRooms.HuntersCacheRoom() );
 		if (Dungeon.depth == 2) rooms.add( new TaigaRooms.TrapperCampRoom() );
 		if (Dungeon.depth == 4) rooms.add( new TaigaRooms.ShamanCircleRoom() );
 		return rooms;
@@ -139,7 +144,7 @@ public class TaigaLevel extends RegularLevel {
 
 	@Override
 	public int mobLimit() {
-		return 9 + Dungeon.depth + Random.Int(3);
+		return 7 + Dungeon.depth + Random.Int(2);
 	}
 
 	@Override
@@ -215,21 +220,31 @@ public class TaigaLevel extends RegularLevel {
 			Generator.Category.ARMOR, Generator.Category.MISSILE, Generator.Category.FOOD,
 			Generator.Category.WAND, Generator.Category.RING
 	};
-	private static final float[] LOOT_CHANCES = { 30, 18, 16, 8, 6, 5, 4, 6, 4, 2, 1 };
+	private static final float[] LOOT_CHANCES = { 20, 18, 18, 6, 7, 9, 7, 6, 4, 4, 3 };
 
 	public static Item randomLoot(){
 		return Generator.randomUsingDefaults( LOOT[Random.chances(LOOT_CHANCES)] );
 	}
 
+	//the taiga is generous: far more loot than a dungeon floor (3-5 items), and every floor has
+	// a potion of strength and at least one scroll of upgrade, so better gear can actually be used
 	@Override
 	protected void createItems() {
-		int items = 6 + Random.Int(3);
+		int items = 14 + Random.Int(5);
 		for (int i = 0; i < items; i++){
-			int cell = randomDropCell();
-			if (cell != -1) drop( randomLoot(), cell ).type = Heap.Type.HEAP;
+			dropLoot( randomLoot() );
 		}
+		dropLoot( new PotionOfStrength() );
+		dropLoot( new ScrollOfUpgrade() );
+		if (Random.Int(2) == 0) dropLoot( new ScrollOfUpgrade() );
+		dropLoot( new PotionOfHealing() );
+		dropLoot( Random.Int(2) == 0 ? new SmokedFish() : new Berry().quantity(2) );
+		dropLoot( new PineNutBread() );
+	}
+
+	private void dropLoot( Item item ){
 		int cell = randomDropCell();
-		if (cell != -1) drop( Random.Int(2) == 0 ? new SmokedFish() : new Berry().quantity(2), cell );
+		if (cell != -1) drop( item, cell ).type = Heap.Type.HEAP;
 	}
 
 	@Override

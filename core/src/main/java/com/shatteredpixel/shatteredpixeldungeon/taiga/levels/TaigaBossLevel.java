@@ -25,6 +25,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
@@ -174,6 +178,21 @@ public class TaigaBossLevel extends Level {
 
 	@Override
 	protected void createItems() {
+		//The fifth taiga floor has supplies too; keep the essentials on the approach
+		//so they can be picked up before entering the Leshy's grove.
+		drop(new PotionOfStrength(), CX + (H - 6) * W);
+		drop(new ScrollOfUpgrade(), CX + (H - 7) * W);
+		drop(new PotionOfHealing(), CX + (H - 8) * W);
+		int placed = 0;
+		for (int tries = 0; tries < 500 && placed < 12; tries++){
+			int x = CX + Random.IntRange(-R + 2, R - 2);
+			int y = CY + Random.IntRange(-R + 2, R - 2);
+			int cell = x + y * W;
+			if (!passable[cell] || heaps.get(cell) != null || findMob(cell) != null
+					|| distance(cell, CX + CY * W) < 5) continue;
+			drop(TaigaLevel.randomLoot(), cell).type = Heap.Type.HEAP;
+			placed++;
+		}
 	}
 
 	@Override

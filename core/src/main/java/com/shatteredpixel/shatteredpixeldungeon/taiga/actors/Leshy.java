@@ -32,7 +32,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -385,6 +387,8 @@ public class Leshy extends Mob {
 
 		Dungeon.level.drop( new LeshyCrook().identify(false), pos ).sprite.drop();
 		Dungeon.level.drop( new HeartOfTheTaiga(), pos ).sprite.drop();
+		Dungeon.level.drop( new PotionOfStrength(), pos ).sprite.drop();
+		Dungeon.level.drop( new ScrollOfUpgrade(), pos ).sprite.drop();
 
 		//the grove calms down
 		for (Mob m : Dungeon.level.mobs.toArray(new Mob[0])){

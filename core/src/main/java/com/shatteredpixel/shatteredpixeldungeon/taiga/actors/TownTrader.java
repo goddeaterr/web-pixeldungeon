@@ -86,7 +86,7 @@ public abstract class TownTrader extends Shopkeeper {
 
 	@Override
 	public String chatText() {
-		return Messages.get(this, "talk");
+		return Messages.get(this, "chat");
 	}
 
 	private static final String STALLS = "stalls";

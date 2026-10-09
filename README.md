@@ -87,8 +87,11 @@ Each floor greets the hero with a line about it; the quest givers tell the rest.
 
 Floors 1-4 are generated like dungeon floors (`TaigaLevel`, a `RegularLevel` with forest instead of walls and no
 doors between clearings), with about twice the rooms of a sewer floor, their own room types (glades, frozen ponds,
-juniper thickets, spruce groves), a hunter's cache with a chest on every floor, and taiga traps (chilling, darts,
-alarm, gripping, flock, teleportation). Loot comes from the default drop tables, never from the item decks.
+juniper thickets, spruce groves), two hunter's caches with chests on each floor, and taiga traps (chilling, darts,
+alarm, gripping, flock, teleportation). Each of floors +1 through +4 has 14-18 random drops,
+two hunter's caches, a guaranteed potion of strength and scroll of upgrade, and extra food and healing.
+The grove on +5 has 12 random drops plus strength, upgrade, and healing supplies on the approach.
+Loot comes from the default drop tables, never from the item decks.
 
 **Creatures:** frost wolf; wild boar (charges); ice wisp (flies, ice shards that chill); frostbitten (undead,
 chilling touch, rarely drops a woodcutter's axe); brown bear (sleeps deeply, hits hard, drops pelts, rarely a bear
@@ -114,7 +117,8 @@ The pass north of the grove is snowed in for now: that's where the next region w
 Developer commands for testing, in debug builds only (`./gradlew html:distDebug -PwebDebug`), in the browser
 console: `spd.debug("goto 3 4")` (taiga floor 3; `goto 0 0` is the village), `spd.debug("reveal")`,
 `spd.debug("tough")`, `spd.debug("tp Trapper")`, `spd.debug("talk Shaman")`,
-`spd.debug("give taiga.items.AlphaFang")`. See `html/.../WebDebug.java`.
+`spd.debug("give taiga.items.AlphaFang")`, `spd.debug("info WildBoar")`,
+`spd.debug("info PineNutBread")`. See `html/.../WebDebug.java`.
 
 Changes outside the `taiga` package, each marked `// MOD:` in the code:
 

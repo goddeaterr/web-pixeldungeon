@@ -26,7 +26,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ItemSlot;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.noosa.ui.Component;
 
 public class WndInfoItem extends Window {
 	
@@ -37,6 +39,7 @@ public class WndInfoItem extends Window {
 
 	//only one WndInfoItem can appear at a time
 	private static WndInfoItem INSTANCE;
+	private ScrollPane scrollingInfo;
 
 	public WndInfoItem( Heap heap ) {
 
@@ -106,11 +109,12 @@ public class WndInfoItem extends Window {
 		int width = WIDTH_MIN;
 
 		info.maxWidth(width);
+		//Item windows can add action, trade, or reward buttons beneath the description.
+		int maxHeight = (int)PixelScene.uiCamera.height - 64;
+		int maxWidth = Math.min(WIDTH_MAX, (int)PixelScene.uiCamera.width - 8);
 
-		//window can go out of the screen on landscape, so widen it as appropriate
-		while (PixelScene.landscape()
-				&& info.height() > 100
-				&& width < WIDTH_MAX){
+		//Widen long descriptions before scrolling, including on narrow mobile screens.
+		while (info.height() > maxHeight - 24 && width + 20 <= maxWidth){
 			width += 20;
 			info.maxWidth(width);
 		}
@@ -123,9 +127,29 @@ public class WndInfoItem extends Window {
 		}
 		add( title );
 
-		info.setPos(title.left(), title.bottom() + GAP);
-		add( info );
+		float top = title.bottom() + GAP;
+		if (top + info.height() + 2 > maxHeight){
+			info.setPos(0, 0);
+			Component content = new Component();
+			content.add(info);
+			content.setSize(width, info.height() + 2);
+			scrollingInfo = new ScrollPane(content);
+			add(scrollingInfo);
+			resize(width, maxHeight);
+			scrollingInfo.setRect(0, top, width, maxHeight - top - 2);
+		} else {
+			info.setPos(title.left(), top);
+			add(info);
+			resize( width, (int)(info.bottom() + 2) );
+		}
+	}
 
-		resize( width, (int)(info.bottom() + 2) );
+	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
+		if (scrollingInfo != null && scrollingInfo.height() > 0) {
+			scrollingInfo.setRect(scrollingInfo.left(), scrollingInfo.top(),
+					scrollingInfo.width(), scrollingInfo.height());
+		}
 	}
 }

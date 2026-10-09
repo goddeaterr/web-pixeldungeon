@@ -38,6 +38,7 @@ import com.watabou.utils.Reflection;
  *   reveal                the whole floor becomes known (like a scroll of magic mapping, without searching)
  *   tp NAME               teleport next to the first creature whose class is called NAME (e.g. tp Trapper)
  *   talk NAME             talk to the first creature whose class is called NAME
+ *   info NAME             the info window of a creature on this floor (class name), or of a new taiga item
  *   give CLASS [N]        put an item in the backpack, CLASS relative to com.shatteredpixel.shatteredpixeldungeon.
  */
 public class WebDebug {
@@ -95,6 +96,22 @@ public class WebDebug {
 						m.interact( Dungeon.hero );
 						return;
 					}
+				}
+				break;
+			case "info":
+				for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob m : Dungeon.level.mobs){
+					if (m.getClass().getSimpleName().equals(parts[1])){
+						GameScene.show( new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoMob( m ) );
+						return;
+					}
+				}
+				Class<?> c = Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.items." + parts[1] );
+				if (c == null) c = Reflection.forName( "com.shatteredpixel.shatteredpixeldungeon.taiga.actors." + parts[1] );
+				Object o = c == null ? null : Reflection.newInstance( c );
+				if (o instanceof Item){
+					GameScene.show( new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem( (Item) o ) );
+				} else if (o instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob){
+					GameScene.show( new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoMob( (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob) o ) );
 				}
 				break;
 			case "give":
