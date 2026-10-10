@@ -130,12 +130,18 @@ New runs begin beside the fire in the first village. The mine is barred until a 
 25 upper floors; the relic and its unlocking event are reserved for that later update. Existing dungeon saves can
 still climb out to the village, and an already visited +10 graveyard gains the climb to +11 when loaded.
 
-Floors +11 through +16 form the Grey Orchard chapter. +11 is a broken-glass waystation with a full shopkeeper;
+Floors +11 through +15 form the Grey Orchard chapter. +11 is a broken-glass waystation with a full shopkeeper;
 +12–14 use ash soil, dead planting rows, glasshouses and cisterns, with three original enemies and four new items.
-+15 has the Glass Conservator, whose row and column beams warn a turn before striking. +16 is an empty watch post
-above the orchard. Its northern route is closed until the next biome is built, while the road back remains open.
-The first arrival at +11 and +16 has illustrated or textual lore, and ash particles mingle with snow throughout
-the orchard. The intended ascent remains 25 upper floors across five biomes.
++15 has the Glass Conservator, whose row and column beams warn a turn before striking. Ash particles mingle with
+snow throughout the orchard.
+
+Floors +16 through +20 are the Windward Barrens. +16 is the Last Survey Station with a full supply merchant;
+older saves at the former +16 dead end gain the northern route and shop on load. +17–19 use a separate slate and
+black-ice atlas, rockfall/camp/ice room layouts, sparse survey markers, three original enemies, and ridge-only
+drops. Sideways snow strengthens with height. +20 is an anchor arena: four breakable vanes strengthen the Last
+Surveyor's defenses and warned crosswinds, while adjacent windbreaks provide shelter. He drops the Anchor Pike.
+The ridge beyond +20 remains sealed until +21–25 are built. The +16 arrival has new illustrated lore explaining
+the upper and lower sources of the blight. The intended ascent remains 25 upper floors across five biomes.
 
 For exploration on an existing save, Settings → Connectivity → Dev mode (testing) has separate Infinite health
 and Infinite damage switches. Both are off by default and persist as settings until turned off.

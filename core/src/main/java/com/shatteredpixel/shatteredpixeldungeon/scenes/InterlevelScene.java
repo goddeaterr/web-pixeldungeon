@@ -194,10 +194,11 @@ public class InterlevelScene extends PixelScene {
 				// MOD: the taiga village (floor 0) has its own loading picture
 				case 0:
 					loadingAsset = villageArrival ? TaigaAssets.VILLAGE_ARRIVAL
+							: TaigaBranch.highlandLoading(loadingDepth) ? TaigaAssets.HIGHLAND_ARRIVAL
 							: TaigaBranch.orchardLoading(loadingDepth) ? TaigaAssets.ORCHARD_ARRIVAL
 							: TaigaBranch.swampLoading(loadingDepth) ? TaigaAssets.SWAMP_SPLASH : TaigaAssets.SPLASH;
 					if (villageArrival || TaigaBranch.swampLoading(loadingDepth)) loadingCenter = 830;
-					if (TaigaBranch.orchardLoading(loadingDepth)) loadingCenter = 760;
+					if (TaigaBranch.orchardLoading(loadingDepth) || TaigaBranch.highlandLoading(loadingDepth)) loadingCenter = 760;
 					break;
 				case 1:
 					loadingAsset = Assets.Splashes.SEWERS;

@@ -65,6 +65,9 @@ public class TaigaItemSprites {
 	public static int BLACK_FRUIT = BASE + 25;
 	public static int GLASS_SICKLE = BASE + 26;
 	public static int CONSERVATOR_SHEARS = BASE + 27;
+	public static int WINDGLASS_SHARD = BASE + 28;
+	public static int SURVEY_RATION = BASE + 29;
+	public static int ANCHOR_PIKE = BASE + 30;
 
 	static {
 		rect(SMOKED_FISH, 15, 11);
@@ -74,7 +77,7 @@ public class TaigaItemSprites {
 		rect(PINE_RESIN,  10, 10);
 		rect(FUR_CLOAK,   15, 14);
 		rect(MITTENS,     14, 13);
-		for (int id = FROST_JAVELIN; id <= CONSERVATOR_SHEARS; id++){
+		for (int id = FROST_JAVELIN; id <= ANCHOR_PIKE; id++){
 			rect(id, 16, 16);
 		}
 	}

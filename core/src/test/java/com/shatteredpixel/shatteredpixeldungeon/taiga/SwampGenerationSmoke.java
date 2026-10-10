@@ -19,6 +19,13 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GlassMoth;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.HollowScarecrow;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.GlassConservator;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.OrchardMerchant;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.SurveyMerchant;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.SlateCrawler;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.FrostSurveyor;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.WindEffigy;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.LastSurveyor;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.actors.WindAnchor;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandOutpostLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.SwampBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.TaigaAssets;
 
@@ -55,7 +62,7 @@ public class SwampGenerationSmoke {
 		for (long seed = 1; seed <= 50; seed++){
 			Dungeon.seed = seed;
 			Dungeon.branch = TaigaBranch.BRANCH;
-			for (int depth = 5; depth <= 16; depth++){
+			for (int depth = 5; depth <= 20; depth++){
 				Dungeon.depth = depth;
 				Level level = TaigaBranch.newLevel(depth);
 				Dungeon.level = level;
@@ -105,8 +112,23 @@ public class SwampGenerationSmoke {
 					check(level.transitions.stream().filter(t -> t.type == LevelTransition.Type.REGULAR_EXIT).count() == 1,
 							"old graveyard has duplicate or missing exit", seed, depth);
 				}
+				if (depth == 16 && seed == 1){
+					level.transitions.removeIf(t -> t.type == LevelTransition.Type.REGULAR_EXIT);
+					level.map[17 + 2 * level.width()] = Terrain.LOCKED_EXIT;
+					level.customTiles = new ArrayList<>();
+					level.customTerrain = new ArrayList<>();
+					level.customWalls = new ArrayList<>();
+					Bundle saved = new Bundle();
+					level.storeInBundle(saved);
+					level = new HighlandOutpostLevel(); Dungeon.level = level;
+					level.restoreFromBundle(saved);
+					check(level.transitions.stream().filter(t -> t.type == LevelTransition.Type.REGULAR_EXIT).count() == 1,
+							"old +16 remains blocked", seed, depth);
+					check(level.mobs.stream().anyMatch(m -> m instanceof SurveyMerchant),
+							"old +16 lacks its new shopkeeper", seed, depth);
+				}
 				check(level.entrance() >= 0, "missing way down", seed, depth);
-				if (depth < 16){
+				if (depth < 20){
 					check(level.exit() >= 0, "missing way up", seed, depth);
 					if (!reachable(level, level.entrance(), level.exit())) dump(level);
 					check(reachable(level, level.entrance(), level.exit()), "unreachable way up", seed, depth);
@@ -137,7 +159,7 @@ public class SwampGenerationSmoke {
 					check(level.mobs.size() == 1 && level.mobs.iterator().next() instanceof GraveWarden,
 							"graveyard lacks its warden", seed, depth);
 				}
-				if (depth >= 11){
+				if (depth >= 11 && depth <= 15){
 					check(TaigaAssets.ORCHARD_TILES.equals(level.tilesTex()), "orchard uses an older tile sheet", seed, depth);
 				}
 				if (depth == 11){
@@ -156,11 +178,31 @@ public class SwampGenerationSmoke {
 					check(level.mobs.size() == 1 && level.mobs.iterator().next() instanceof GlassConservator,
 							"conservatory lacks its boss", seed, depth);
 				}
-				if (depth == 16) check(level.transitions.stream().noneMatch(t -> t.type == LevelTransition.Type.REGULAR_EXIT),
-						"unfinished +17 is reachable", seed, depth);
+				if (depth >= 16) check(TaigaAssets.HIGHLAND_TILES.equals(level.tilesTex()),
+						"barrens still use orchard art", seed, depth);
+				if (depth == 16){
+					if (seed != 1) invoke(level,"createMobs");
+					check(level.mobs.stream().anyMatch(m -> m instanceof SurveyMerchant),
+							"survey station lacks its shopkeeper", seed, depth);
+				}
+				if (depth >= 17 && depth <= 19){
+					for (int i = 0; i < 20; i++){
+						Mob mob = level.createMob();
+						check(mob instanceof SlateCrawler || mob instanceof FrostSurveyor || mob instanceof WindEffigy,
+								"barrens generated an older enemy", seed, depth);
+					}
+				}
+				if (depth == 20){
+					invoke(level,"createMobs");
+					check(level.mobs.stream().filter(m -> m instanceof LastSurveyor).count() == 1
+							&& level.mobs.stream().filter(m -> m instanceof WindAnchor).count() == 4,
+							"wind anchor arena is incomplete", seed, depth);
+					check(level.transitions.stream().noneMatch(t -> t.type == LevelTransition.Type.REGULAR_EXIT),
+							"unfinished +21 is reachable", seed, depth);
+				}
 			}
 		}
-		System.out.println("50 seeds: +5 and +10 saves migrate; +6 and +11 shops; custom mobs and tiles; routes to +16 valid");
+		System.out.println("50 seeds: +5, +10, +16 saves migrate; three shops; distinct barrens mobs and boss; routes to +20 valid");
 	}
 
 	private static void invoke(Level level, String name) throws Exception {

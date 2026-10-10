@@ -35,6 +35,8 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardWaystationLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandOutpostLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 /**
@@ -42,13 +44,14 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
  *
  * They are a dungeon branch of their own (like the mining and vault quest areas), so their depths
  * (counted upwards from the village) never mix with the dungeon's: separate level files and seeds.
- * The village trail leads to +1, the snowy swamp reaches +10, and the Grey Orchard reaches +16.
+ * The village trail leads to +1, the snowy swamp to +10, the Grey Orchard to +15,
+ * and the Windward Barrens to +20.
  */
 public class TaigaBranch {
 
 	//branch 1 is used by the dungeon's quest areas
 	public static final int BRANCH = 4;
-	public static final int FLOORS = 16;
+	public static final int FLOORS = 20;
 
 	public static boolean active(){
 		return Dungeon.branch == BRANCH;
@@ -63,7 +66,9 @@ public class TaigaBranch {
 		if (depth == 11) return new OrchardWaystationLevel();
 		if (depth <= 14) return new OrchardLevel();
 		if (depth == 15) return new OrchardBossLevel();
-		return new HighlandOutpostLevel();
+		if (depth == 16) return new HighlandOutpostLevel();
+		if (depth <= 19) return new HighlandLevel();
+		return new HighlandBossLevel();
 	}
 
 	public static String floorName( int depth ){
@@ -104,8 +109,14 @@ public class TaigaBranch {
 
 	public static boolean orchardLoading( int loadingDepth ){
 		LevelTransition t = InterlevelScene.curTransition;
-		return (t != null && t.destBranch == BRANCH && t.destDepth >= 11)
-				|| (t == null && active() && loadingDepth >= 11);
+		return (t != null && t.destBranch == BRANCH && t.destDepth >= 11 && t.destDepth <= 15)
+				|| (t == null && active() && loadingDepth >= 11 && loadingDepth <= 15);
+	}
+
+	public static boolean highlandLoading(int loadingDepth){
+		LevelTransition t = InterlevelScene.curTransition;
+		return (t != null && t.destBranch == BRANCH && t.destDepth >= 16)
+				|| (t == null && active() && loadingDepth >= 16);
 	}
 
 	//"Descending..." would be wrong when climbing the mountain

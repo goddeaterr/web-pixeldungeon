@@ -955,6 +955,8 @@ if __name__ == '__main__':
 	swamp_art.build_all()
 	import orchard_art
 	orchard_art.build_all()
+	import highland_art
+	highland_art.build_all()
 
 	splash().convert('RGB').save(os.path.join(OUT, 'splash.png'))
 	print('taiga art written to', OUT)

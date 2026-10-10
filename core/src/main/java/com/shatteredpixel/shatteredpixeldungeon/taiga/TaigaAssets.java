@@ -30,6 +30,8 @@ import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardWaystationLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.OrchardBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandOutpostLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandLevel;
+import com.shatteredpixel.shatteredpixeldungeon.taiga.levels.HighlandBossLevel;
 
 //MOD (taiga town): textures and texts of the village, all drawn by mod/taiga_art.py
 public class TaigaAssets {
@@ -56,6 +58,13 @@ public class TaigaAssets {
 	public static final String ORCHARD_MOBS     = "taiga/orchard_mobs.png";
 	public static final String ORCHARD_BOSS     = "taiga/orchard_boss.png";
 	public static final String ORCHARD_ARRIVAL  = "taiga/orchard_arrival.png";
+	public static final String HIGHLAND_TILES = "taiga/highland_tiles.png";
+	public static final String HIGHLAND_WATER = "taiga/highland_water.png";
+	public static final String HIGHLAND_FEATURES = "taiga/highland_terrain_features.png";
+	public static final String HIGHLAND_RAISED = "taiga/highland_raised_terrain.png";
+	public static final String HIGHLAND_MOBS = "taiga/highland_mobs.png";
+	public static final String HIGHLAND_BOSS = "taiga/highland_boss.png";
+	public static final String HIGHLAND_ARRIVAL = "taiga/highland_arrival.png";
 
 	public static final String ITEMS            = "taiga/items.png";
 	public static final String VILLAGERS        = "taiga/villagers.png";
@@ -69,6 +78,11 @@ public class TaigaAssets {
 
 	//the terrain overlays pick their sheet by region, the village has its own versions of them
 	public static String forLevel( String asset ){
+		if (Dungeon.level instanceof HighlandLevel || Dungeon.level instanceof HighlandOutpostLevel
+				|| Dungeon.level instanceof HighlandBossLevel){
+			if (asset.equals(Assets.Environment.TERRAIN_FEATURES)) return HIGHLAND_FEATURES;
+			if (asset.equals(Assets.Environment.RAISED_TERRAIN)) return HIGHLAND_RAISED;
+		}
 		if (Dungeon.level instanceof OrchardLevel || Dungeon.level instanceof OrchardWaystationLevel
 				|| Dungeon.level instanceof OrchardBossLevel || Dungeon.level instanceof HighlandOutpostLevel){
 			if (asset.equals(Assets.Environment.TERRAIN_FEATURES)) return ORCHARD_FEATURES;
